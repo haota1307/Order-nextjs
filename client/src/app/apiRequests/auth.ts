@@ -1,14 +1,23 @@
 import http from '@/lib/http'
-import { LoginBodyType, LoginResType } from '@/schemaValidations/auth.schema'
+import { LoginBodyType, LoginResType, LogoutBodyType } from '@/schemaValidations/auth.schema'
 
 const authApiRequest = {
   // Server login
   sLogin: (body: LoginBodyType) => http.post<LoginResType>('/auth/login', body),
   // Client login (route handler - next server)
-  login: (body: LoginBodyType) =>
-    http.post<LoginResType>('/api/auth/login', body, {
-      baseUrl: '',
-    }),
+  login: (body: LoginBodyType) => http.post<LoginResType>('/api/auth/login', body, { baseUrl: '' }),
+  sLogout: (body: LogoutBodyType & { accessToken: string }) =>
+    http.post(
+      '/auth/logout',
+      { refreshToken: body.refreshToken },
+      {
+        headers: {
+          Authorization: `Bearer ${body.accessToken}`,
+        },
+      }
+    ),
+  // AT & RT tự động gửi qua cookie
+  logout: () => http.post('/api/auth/logout', null, { baseUrl: '' }),
 }
 
 export default authApiRequest
