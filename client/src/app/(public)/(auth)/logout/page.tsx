@@ -1,6 +1,6 @@
 'use client'
 
-import { getRefreshTokenFromLocalStorage } from '@/lib/utils'
+import { getAccessTokenFromLocalStorage, getRefreshTokenFromLocalStorage } from '@/lib/utils'
 import { useLogoutMutation } from '@/queries/useAuth'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useRef } from 'react'
@@ -11,8 +11,15 @@ export default function LogoutPage() {
   const ref = useRef<any>(null) // handle trường hợp '/logout' bị gọi 2 lần
   const searchParams = useSearchParams() // handle trường hợp bị bịp gửi link chứa route /logout
   const refreshTokenFromUrl = searchParams.get('refreshToken')
+  const accessTokenFromUrl = searchParams.get('accessToken')
   useEffect(() => {
-    if (ref.current || refreshTokenFromUrl !== getRefreshTokenFromLocalStorage()) return
+    if (
+      ref.current ||
+      (refreshTokenFromUrl && refreshTokenFromUrl !== getRefreshTokenFromLocalStorage()) ||
+      (accessTokenFromUrl && accessTokenFromUrl !== getAccessTokenFromLocalStorage())
+    ) {
+      return
+    }
     ref.current = mutateAsync
     mutateAsync().then((res) => {
       setTimeout(() => {

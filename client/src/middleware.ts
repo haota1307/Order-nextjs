@@ -8,7 +8,6 @@ export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
   const accessToken = request.cookies.get('accessToken')?.value
   const refreshToken = request.cookies.get('refreshToken')?.value
-
   //Chưa đăng nhập thì không cho vào private path
   if (privatePaths.some((path) => pathname.startsWith(path)) && !refreshToken) {
     return NextResponse.redirect(new URL('/login', request.url))
