@@ -2,9 +2,9 @@ import envConfig from '@/config'
 import { DishStatus, OrderStatus, Role } from '@/constants/type'
 import prisma from '@/database'
 import { GuestCreateOrdersBodyType, GuestLoginBodyType } from '@/schemaValidations/guest.schema'
-import { StatusError } from '@/utils/errors'
+import { TokenPayload } from '@/types/jwt.types'
+import { AuthError, StatusError } from '@/utils/errors'
 import { signAccessToken, signRefreshToken, verifyRefreshToken } from '@/utils/jwt'
-import { addMilliseconds } from 'date-fns'
 import ms from 'ms'
 
 export const guestLoginController = async (body: GuestLoginBodyType) => {
@@ -26,17 +26,24 @@ export const guestLoginController = async (body: GuestLoginBodyType) => {
       name: body.name
     }
   })
-
-  const refreshToken = signRefreshToken({
-    userId: guest.id,
-    role: Role.Guest,
-    exp: ms(envConfig.GUEST_REFRESH_TOKEN_EXPIRES_IN)
-  })
-  const accessToken = signAccessToken({
-    userId: guest.id,
-    role: Role.Guest,
-    exp: ms(envConfig.GUEST_ACCESS_TOKEN_EXPIRES_IN)
-  })
+  const refreshToken = signRefreshToken(
+    {
+      userId: guest.id,
+      role: Role.Guest
+    },
+    {
+      expiresIn: ms(envConfig.GUEST_REFRESH_TOKEN_EXPIRES_IN)
+    }
+  )
+  const accessToken = signAccessToken(
+    {
+      userId: guest.id,
+      role: Role.Guest
+    },
+    {
+      expiresIn: ms(envConfig.GUEST_ACCESS_TOKEN_EXPIRES_IN)
+    }
+  )
   const decodedRefreshToken = verifyRefreshToken(refreshToken)
   const refreshTokenExpiresAt = new Date(decodedRefreshToken.exp * 1000)
 
@@ -54,6 +61,56 @@ export const guestLoginController = async (body: GuestLoginBodyType) => {
     guest,
     accessToken,
     refreshToken
+  }
+}
+
+export const guestLogoutController = async (id: number) => {
+  await prisma.guest.update({
+    where: {
+      id
+    },
+    data: {
+      refreshToken: null,
+      refreshTokenExpiresAt: null
+    }
+  })
+  return 'Đăng xuất thành công'
+}
+
+export const guestRefreshTokenController = async (refreshToken: string) => {
+  let decodedRefreshToken: TokenPayload
+  try {
+    decodedRefreshToken = verifyRefreshToken(refreshToken)
+  } catch (error) {
+    throw new AuthError('Refresh token không hợp lệ')
+  }
+  const newRefreshToken = signRefreshToken({
+    userId: decodedRefreshToken.userId,
+    role: Role.Guest,
+    exp: decodedRefreshToken.exp
+  })
+  const newAccessToken = signAccessToken(
+    {
+      userId: decodedRefreshToken.userId,
+      role: Role.Guest
+    },
+    {
+      expiresIn: ms(envConfig.GUEST_ACCESS_TOKEN_EXPIRES_IN)
+    }
+  )
+  await prisma.guest.update({
+    where: {
+      id: decodedRefreshToken.userId
+    },
+    data: {
+      refreshToken: newRefreshToken,
+      refreshTokenExpiresAt: new Date(decodedRefreshToken.exp * 1000)
+    }
+  })
+
+  return {
+    accessToken: newAccessToken,
+    refreshToken: newRefreshToken
   }
 }
 
