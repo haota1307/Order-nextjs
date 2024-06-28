@@ -10,7 +10,9 @@ export function middleware(request: NextRequest) {
   const refreshToken = request.cookies.get('refreshToken')?.value
   //Chưa đăng nhập thì không cho vào private path
   if (privatePaths.some((path) => pathname.startsWith(path)) && !refreshToken) {
-    return NextResponse.redirect(new URL('/login', request.url))
+    const url = new URL('/login', request.url)
+    url.searchParams.set('clearTokens', 'true')
+    return NextResponse.redirect(url)
   }
   // Đăng nhập rồi thì không cho vào login nữa
   if (unAuthPaths.some((path) => pathname.startsWith(path)) && refreshToken) {
