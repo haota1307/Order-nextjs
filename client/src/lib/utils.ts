@@ -1,5 +1,6 @@
 import authApiRequest from '@/app/apiRequests/auth'
 import { toast } from '@/components/ui/use-toast'
+import { DishStatus, TableStatus } from '@/constants/type'
 import { EntityError } from '@/lib/http'
 import { type ClassValue, clsx } from 'clsx'
 import { decode } from 'jsonwebtoken'
@@ -96,5 +97,33 @@ export const checkAndRefreshToken = async (param?: {
     } catch (error) {
       param?.onError && param.onError()
     }
+  }
+}
+
+export const formatCurrency = (number: number) => {
+  return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(number)
+}
+
+export const getVietnameseDishStatus = (status: (typeof DishStatus)[keyof typeof DishStatus]) => {
+  switch (status) {
+    case DishStatus.Available:
+      return 'Có sẵn'
+    case DishStatus.Unavailable:
+      return 'Không có sẵn'
+    default:
+      return 'Ẩn'
+  }
+}
+
+export const getVietnameseTableStatus = (
+  status: (typeof TableStatus)[keyof typeof TableStatus]
+) => {
+  switch (status) {
+    case TableStatus.Available:
+      return 'Có sẵn'
+    case TableStatus.Reserved:
+      return 'Đã đặt'
+    default:
+      return 'Ẩn'
   }
 }
