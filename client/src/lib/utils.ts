@@ -58,6 +58,10 @@ export const setAccessTokenToLocalStorage = (accessToken: string) => {
 export const setRefreshTokenToLocalStorage = (refreshToken: string) => {
   return isBrowser && localStorage.setItem('refreshToken', refreshToken)
 }
+export const removeTokeformLocalStorage = () => {
+  isBrowser && localStorage.removeItem('accessToken')
+  isBrowser && localStorage.removeItem('refreshToken')
+}
 
 export const checkAndRefreshToken = async (param?: {
   onError?: () => void
@@ -77,8 +81,11 @@ export const checkAndRefreshToken = async (param?: {
    * còn new Date().getTime() thì nó sẽ trả về epoch time (ms)
    */
   const now = Math.round(new Date().getTime() / 1000)
-  // TH1: refresh token hết hạn
-  if (decodeRefreshToken.exp <= now) return
+  // TH1: refresh token hết hạn => logout
+  if (decodeRefreshToken.exp <= now) {
+    removeTokeformLocalStorage()
+    return param?.onError && param.onError()
+  }
   // TH2: Thời gian hết hạn của access token < 1/3 thì xử lý
   if (decodeAccessToken.exp - now < (decodeAccessToken.exp - decodeAccessToken.iat) / 3) {
     try {
