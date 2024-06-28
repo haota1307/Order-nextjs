@@ -37,6 +37,7 @@ export default function LoginForm() {
         title: 'Thành công',
         description: result.payload.message,
       })
+      setIsAuth(true)
       router.push('/manage/dashboard')
     } catch (error) {
       handleErrorApi({

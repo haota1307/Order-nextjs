@@ -1,11 +1,13 @@
 'use client'
 
+import { useAppContext } from '@/components/app-provider'
 import { getAccessTokenFromLocalStorage, getRefreshTokenFromLocalStorage } from '@/lib/utils'
 import { useLogoutMutation } from '@/queries/useAuth'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useRef } from 'react'
 
 export default function LogoutPage() {
+  const { setIsAuth } = useAppContext()
   const { mutateAsync } = useLogoutMutation()
   const router = useRouter()
   const ref = useRef<any>(null) // handle trường hợp '/logout' bị gọi 2 lần
@@ -23,6 +25,7 @@ export default function LogoutPage() {
         setTimeout(() => {
           ref.current = null
         }, 1000)
+        setIsAuth(false)
         router.push('/login')
       })
     } else {
