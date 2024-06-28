@@ -80,6 +80,7 @@ export default function EditEmployee({
         title: 'Thành công',
         description: result.payload.message,
       })
+      reset()
       onSubmitSuccess && onSubmitSuccess()
     } catch (error) {
       handleErrorApi({
@@ -87,6 +88,11 @@ export default function EditEmployee({
         setError: form.setError,
       })
     }
+  }
+
+  const reset = () => {
+    setId(undefined)
+    setFile(null)
   }
 
   useEffect(() => {
@@ -108,7 +114,7 @@ export default function EditEmployee({
       open={Boolean(id)}
       onOpenChange={(value) => {
         if (!value) {
-          setId(undefined)
+          reset()
         }
       }}
     >
