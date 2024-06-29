@@ -100,7 +100,7 @@ export default function EditEmployee({
       const { name, avatar, email } = data.payload.data
       form.reset({
         name,
-        avatar: avatar ?? '',
+        avatar: avatar ?? undefined,
         email,
         changePassword: form.getValues('changePassword'),
         password: form.getValues('password'),
