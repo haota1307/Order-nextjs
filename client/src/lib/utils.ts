@@ -1,5 +1,6 @@
 import authApiRequest from '@/app/apiRequests/auth'
 import { toast } from '@/components/ui/use-toast'
+import envConfig from '@/config'
 import { DishStatus, TableStatus } from '@/constants/type'
 import { EntityError } from '@/lib/http'
 import { type ClassValue, clsx } from 'clsx'
@@ -126,4 +127,8 @@ export const getVietnameseTableStatus = (
     default:
       return 'Ẩn'
   }
+}
+
+export const getTableLink = ({ token, tableNumber }: { token: string; tableNumber: number }) => {
+  return envConfig.NEXT_PUBLIC_URL + '/tables/' + tableNumber + '?token=' + token
 }
