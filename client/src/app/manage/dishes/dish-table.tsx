@@ -11,7 +11,7 @@ import {
   getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
-  useReactTable
+  useReactTable,
 } from '@tanstack/react-table'
 import { Button } from '@/components/ui/button'
 
@@ -21,10 +21,17 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
-  DropdownMenuTrigger
+  DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Input } from '@/components/ui/input'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { createContext, useContext, useEffect, useState } from 'react'
 import {
@@ -35,7 +42,7 @@ import {
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
-  AlertDialogTitle
+  AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
 import { formatCurrency, getVietnameseDishStatus } from '@/lib/utils'
 import { useSearchParams } from 'next/navigation'
@@ -43,6 +50,8 @@ import AutoPagination from '@/components/auto-pagination'
 import { DishListResType } from '@/schemaValidations/dish.schema'
 import EditDish from '@/app/manage/dishes/edit-dish'
 import AddDish from '@/app/manage/dishes/add-dish'
+import { useDishListQuery } from '@/queries/useDish'
+import DOMPurify from 'dompurify'
 
 type DishItem = DishListResType['data'][0]
 
@@ -55,13 +64,13 @@ const DishTableContext = createContext<{
   setDishIdEdit: (value: number | undefined) => {},
   dishIdEdit: undefined,
   dishDelete: null,
-  setDishDelete: (value: DishItem | null) => {}
+  setDishDelete: (value: DishItem | null) => {},
 })
 
 export const columns: ColumnDef<DishItem>[] = [
   {
     accessorKey: 'id',
-    header: 'ID'
+    header: 'ID',
   },
   {
     accessorKey: 'image',
@@ -73,29 +82,36 @@ export const columns: ColumnDef<DishItem>[] = [
           <AvatarFallback className='rounded-none'>{row.original.name}</AvatarFallback>
         </Avatar>
       </div>
-    )
+    ),
   },
   {
     accessorKey: 'name',
     header: 'Tên',
-    cell: ({ row }) => <div className='capitalize'>{row.getValue('name')}</div>
+    cell: ({ row }) => <div className='capitalize'>{row.getValue('name')}</div>,
   },
   {
     accessorKey: 'price',
     header: 'Giá cả',
-    cell: ({ row }) => <div className='capitalize'>{formatCurrency(row.getValue('price'))}</div>
+    cell: ({ row }) => <div className='capitalize'>{formatCurrency(row.getValue('price'))}</div>,
   },
   {
     accessorKey: 'description',
     header: 'Mô tả',
     cell: ({ row }) => (
-      <div dangerouslySetInnerHTML={{ __html: row.getValue('description') }} className='whitespace-pre-line' />
-    )
+      <div
+        /**
+         * dangerouslySetInnerHTML: giúp có thể style chữ trong tương lại
+         * DOMPurify: chống xxs
+         */
+        dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(row.getValue('description')) }}
+        className='whitespace-pre-line'
+      />
+    ),
   },
   {
     accessorKey: 'status',
     header: 'Trạng thái',
-    cell: ({ row }) => <div>{getVietnameseDishStatus(row.getValue('status'))}</div>
+    cell: ({ row }) => <div>{getVietnameseDishStatus(row.getValue('status'))}</div>,
   },
   {
     id: 'actions',
@@ -125,13 +141,13 @@ export const columns: ColumnDef<DishItem>[] = [
           </DropdownMenuContent>
         </DropdownMenu>
       )
-    }
-  }
+    },
+  },
 ]
 
 function AlertDialogDeleteDish({
   dishDelete,
-  setDishDelete
+  setDishDelete,
 }: {
   dishDelete: DishItem | null
   setDishDelete: (value: DishItem | null) => void
@@ -149,8 +165,11 @@ function AlertDialogDeleteDish({
         <AlertDialogHeader>
           <AlertDialogTitle>Xóa món ăn?</AlertDialogTitle>
           <AlertDialogDescription>
-            Món <span className='bg-foreground text-primary-foreground rounded px-1'>{dishDelete?.name}</span> sẽ bị xóa
-            vĩnh viễn
+            Món{' '}
+            <span className='bg-foreground text-primary-foreground rounded px-1'>
+              {dishDelete?.name}
+            </span>{' '}
+            sẽ bị xóa vĩnh viễn
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
@@ -169,14 +188,15 @@ export default function DishTable() {
   const pageIndex = page - 1
   const [dishIdEdit, setDishIdEdit] = useState<number | undefined>()
   const [dishDelete, setDishDelete] = useState<DishItem | null>(null)
-  const data: any[] = []
+  const dishListQuery = useDishListQuery()
+  const data = dishListQuery.data?.payload.data || []
   const [sorting, setSorting] = useState<SortingState>([])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
   const [rowSelection, setRowSelection] = useState({})
   const [pagination, setPagination] = useState({
     pageIndex, // Gía trị mặc định ban đầu, không có ý nghĩa khi data được fetch bất đồng bộ
-    pageSize: PAGE_SIZE //default page size
+    pageSize: PAGE_SIZE, //default page size
   })
 
   const table = useReactTable({
@@ -197,14 +217,14 @@ export default function DishTable() {
       columnFilters,
       columnVisibility,
       rowSelection,
-      pagination
-    }
+      pagination,
+    },
   })
 
   useEffect(() => {
     table.setPagination({
       pageIndex,
-      pageSize: PAGE_SIZE
+      pageSize: PAGE_SIZE,
     })
   }, [table, pageIndex])
 
@@ -232,7 +252,9 @@ export default function DishTable() {
                   {headerGroup.headers.map((header) => {
                     return (
                       <TableHead key={header.id}>
-                        {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
+                        {header.isPlaceholder
+                          ? null
+                          : flexRender(header.column.columnDef.header, header.getContext())}
                       </TableHead>
                     )
                   })}
@@ -244,7 +266,9 @@ export default function DishTable() {
                 table.getRowModel().rows.map((row) => (
                   <TableRow key={row.id} data-state={row.getIsSelected() && 'selected'}>
                     {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
+                      <TableCell key={cell.id}>
+                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      </TableCell>
                     ))}
                   </TableRow>
                 ))
@@ -260,8 +284,8 @@ export default function DishTable() {
         </div>
         <div className='flex items-center justify-end space-x-2 py-4'>
           <div className='text-xs text-muted-foreground py-4 flex-1 '>
-            Hiển thị <strong>{table.getPaginationRowModel().rows.length}</strong> trong <strong>{data.length}</strong>{' '}
-            kết quả
+            Hiển thị <strong>{table.getPaginationRowModel().rows.length}</strong> trong{' '}
+            <strong>{data.length}</strong> kết quả
           </div>
           <div>
             <AutoPagination
