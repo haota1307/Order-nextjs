@@ -11,7 +11,7 @@ import {
   getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
-  useReactTable
+  useReactTable,
 } from '@tanstack/react-table'
 import { Button } from '@/components/ui/button'
 
@@ -21,10 +21,17 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
-  DropdownMenuTrigger
+  DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Input } from '@/components/ui/input'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
 import { createContext, useContext, useEffect, useState } from 'react'
 import {
   AlertDialog,
@@ -34,7 +41,7 @@ import {
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
-  AlertDialogTitle
+  AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
 import { getVietnameseTableStatus } from '@/lib/utils'
 import { useSearchParams } from 'next/navigation'
@@ -42,6 +49,8 @@ import AutoPagination from '@/components/auto-pagination'
 import { TableListResType } from '@/schemaValidations/table.schema'
 import EditTable from '@/app/manage/tables/edit-table'
 import AddTable from '@/app/manage/tables/add-table'
+import { useTableListQuery } from '@/queries/useTable'
+import QRCodeTable from '@/components/qrcode-table'
 
 type TableItem = TableListResType['data'][0]
 
@@ -54,29 +63,33 @@ const TableTableContext = createContext<{
   setTableIdEdit: (value: number | undefined) => {},
   tableIdEdit: undefined,
   tableDelete: null,
-  setTableDelete: (value: TableItem | null) => {}
+  setTableDelete: (value: TableItem | null) => {},
 })
 
 export const columns: ColumnDef<TableItem>[] = [
   {
     accessorKey: 'number',
     header: 'Số bàn',
-    cell: ({ row }) => <div className='capitalize'>{row.getValue('number')}</div>
+    cell: ({ row }) => <div className='capitalize'>{row.getValue('number')}</div>,
   },
   {
     accessorKey: 'capacity',
     header: 'Sức chứa',
-    cell: ({ row }) => <div className='capitalize'>{row.getValue('capacity')}</div>
+    cell: ({ row }) => <div className='capitalize'>{row.getValue('capacity')}</div>,
   },
   {
     accessorKey: 'status',
     header: 'Trạng thái',
-    cell: ({ row }) => <div>{getVietnameseTableStatus(row.getValue('status'))}</div>
+    cell: ({ row }) => <div>{getVietnameseTableStatus(row.getValue('status'))}</div>,
   },
   {
     accessorKey: 'token',
     header: 'QR Code',
-    cell: ({ row }) => <div>{row.getValue('number')}</div>
+    cell: ({ row }) => (
+      <div>
+        <QRCodeTable token={row.getValue('token')} tableNumber={row.getValue('number')} />
+      </div>
+    ),
   },
   {
     id: 'actions',
@@ -106,13 +119,13 @@ export const columns: ColumnDef<TableItem>[] = [
           </DropdownMenuContent>
         </DropdownMenu>
       )
-    }
-  }
+    },
+  },
 ]
 
 function AlertDialogDeleteTable({
   tableDelete,
-  setTableDelete
+  setTableDelete,
 }: {
   tableDelete: TableItem | null
   setTableDelete: (value: TableItem | null) => void
@@ -130,8 +143,11 @@ function AlertDialogDeleteTable({
         <AlertDialogHeader>
           <AlertDialogTitle>Xóa bàn ăn?</AlertDialogTitle>
           <AlertDialogDescription>
-            Bàn <span className='bg-foreground text-primary-foreground rounded px-1'>{tableDelete?.number}</span> sẽ bị
-            xóa vĩnh viễn
+            Bàn{' '}
+            <span className='bg-foreground text-primary-foreground rounded px-1'>
+              {tableDelete?.number}
+            </span>{' '}
+            sẽ bị xóa vĩnh viễn
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
@@ -151,14 +167,15 @@ export default function TableTable() {
   // const params = Object.fromEntries(searchParam.entries())
   const [tableIdEdit, setTableIdEdit] = useState<number | undefined>()
   const [tableDelete, setTableDelete] = useState<TableItem | null>(null)
-  const data: any[] = []
+  const tableListQuery = useTableListQuery()
+  const data = tableListQuery.data?.payload.data ?? []
   const [sorting, setSorting] = useState<SortingState>([])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
   const [rowSelection, setRowSelection] = useState({})
   const [pagination, setPagination] = useState({
     pageIndex, // Gía trị mặc định ban đầu, không có ý nghĩa khi data được fetch bất đồng bộ
-    pageSize: PAGE_SIZE //default page size
+    pageSize: PAGE_SIZE, //default page size
   })
 
   const table = useReactTable({
@@ -179,19 +196,21 @@ export default function TableTable() {
       columnFilters,
       columnVisibility,
       rowSelection,
-      pagination
-    }
+      pagination,
+    },
   })
 
   useEffect(() => {
     table.setPagination({
       pageIndex,
-      pageSize: PAGE_SIZE
+      pageSize: PAGE_SIZE,
     })
   }, [table, pageIndex])
 
   return (
-    <TableTableContext.Provider value={{ tableIdEdit, setTableIdEdit, tableDelete, setTableDelete }}>
+    <TableTableContext.Provider
+      value={{ tableIdEdit, setTableIdEdit, tableDelete, setTableDelete }}
+    >
       <div className='w-full'>
         <EditTable id={tableIdEdit} setId={setTableIdEdit} />
         <AlertDialogDeleteTable tableDelete={tableDelete} setTableDelete={setTableDelete} />
@@ -214,7 +233,9 @@ export default function TableTable() {
                   {headerGroup.headers.map((header) => {
                     return (
                       <TableHead key={header.id}>
-                        {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
+                        {header.isPlaceholder
+                          ? null
+                          : flexRender(header.column.columnDef.header, header.getContext())}
                       </TableHead>
                     )
                   })}
@@ -226,7 +247,9 @@ export default function TableTable() {
                 table.getRowModel().rows.map((row) => (
                   <TableRow key={row.id} data-state={row.getIsSelected() && 'selected'}>
                     {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
+                      <TableCell key={cell.id}>
+                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      </TableCell>
                     ))}
                   </TableRow>
                 ))
@@ -242,8 +265,8 @@ export default function TableTable() {
         </div>
         <div className='flex items-center justify-end space-x-2 py-4'>
           <div className='text-xs text-muted-foreground py-4 flex-1 '>
-            Hiển thị <strong>{table.getPaginationRowModel().rows.length}</strong> trong <strong>{data.length}</strong>{' '}
-            kết quả
+            Hiển thị <strong>{table.getPaginationRowModel().rows.length}</strong> trong{' '}
+            <strong>{data.length}</strong> kết quả
           </div>
           <div>
             <AutoPagination
