@@ -33,16 +33,6 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { createContext, useContext, useEffect, useState } from 'react'
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog'
 import { getVietnameseTableStatus } from '@/lib/utils'
 import { useSearchParams } from 'next/navigation'
 import AutoPagination from '@/components/auto-pagination'
@@ -51,6 +41,7 @@ import EditTable from '@/app/manage/tables/edit-table'
 import AddTable from '@/app/manage/tables/add-table'
 import { useTableListQuery } from '@/queries/useTable'
 import QRCodeTable from '@/components/qrcode-table'
+import AlertDialogDeleteTable from '@/app/manage/tables/alert-dialog-detele-table'
 
 type TableItem = TableListResType['data'][0]
 
@@ -71,6 +62,10 @@ export const columns: ColumnDef<TableItem>[] = [
     accessorKey: 'number',
     header: 'Số bàn',
     cell: ({ row }) => <div className='capitalize'>{row.getValue('number')}</div>,
+    filterFn: (rows, columnId, filterValue) => {
+      if (!filterValue) return true
+      return String(filterValue) === String(rows.getValue('number'))
+    },
   },
   {
     accessorKey: 'capacity',
@@ -123,41 +118,6 @@ export const columns: ColumnDef<TableItem>[] = [
   },
 ]
 
-function AlertDialogDeleteTable({
-  tableDelete,
-  setTableDelete,
-}: {
-  tableDelete: TableItem | null
-  setTableDelete: (value: TableItem | null) => void
-}) {
-  return (
-    <AlertDialog
-      open={Boolean(tableDelete)}
-      onOpenChange={(value) => {
-        if (!value) {
-          setTableDelete(null)
-        }
-      }}
-    >
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>Xóa bàn ăn?</AlertDialogTitle>
-          <AlertDialogDescription>
-            Bàn{' '}
-            <span className='bg-foreground text-primary-foreground rounded px-1'>
-              {tableDelete?.number}
-            </span>{' '}
-            sẽ bị xóa vĩnh viễn
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction>Continue</AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
-  )
-}
 // Số lượng item trên 1 trang
 const PAGE_SIZE = 10
 export default function TableTable() {
