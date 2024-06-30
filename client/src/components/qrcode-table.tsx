@@ -14,8 +14,10 @@ export default function QRCodeTable({
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   useEffect(() => {
-    // Canvas thật
     const canvas = canvasRef.current!
+    const scale = 10 // Tăng scale để tăng độ phân giải
+    const scaledWidth = width * scale
+
     canvas.height = width + 70
     canvas.width = width
     const canvasContext = canvas.getContext('2d')!
@@ -26,18 +28,21 @@ export default function QRCodeTable({
     canvasContext.fillStyle = '#000'
     canvasContext.fillText(`Bàn số ${tableNumber}`, canvas.width / 2, canvas.width + 25)
     canvasContext.fillText(`Quét mã QR để gọi món`, canvas.width / 2, canvas.width + 50)
-    // Canvas ảo
-    const virtalCanvas = document.createElement('canvas')
+
+    const virtualCanvas = document.createElement('canvas')
+    virtualCanvas.width = scaledWidth
+    virtualCanvas.height = scaledWidth
 
     QRCode.toCanvas(
-      virtalCanvas,
+      virtualCanvas,
       getTableLink({
         token,
         tableNumber,
       }),
+      { width: scaledWidth },
       function (error) {
         if (error) console.log(error)
-        canvasContext.drawImage(virtalCanvas, 0, 0, width, width)
+        canvasContext.drawImage(virtualCanvas, 0, 0, width, width)
       }
     )
   }, [token, tableNumber, width])
