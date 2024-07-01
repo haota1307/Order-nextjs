@@ -1,3 +1,4 @@
+import revalidateApiRequest from '@/app/apiRequests/revalidate'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -27,6 +28,7 @@ export default function AlertDialogDeleteDish({
       try {
         const result = await mutateAsync(dishDelete.id)
         setDishDelete(null)
+        await revalidateApiRequest('dishes')
         toast({
           title: 'Thành công',
           description: result.payload.message,

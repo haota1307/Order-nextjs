@@ -128,7 +128,7 @@ export default function AddDish() {
                     <div className='flex gap-2 items-start justify-start'>
                       <Avatar className='aspect-square w-[100px] h-[100px] rounded-md object-cover'>
                         <AvatarImage src={previewAvatarFromFile} />
-                        <AvatarFallback className='rounded-none'>
+                        <AvatarFallback className='rounded-none text-center'>
                           {name || 'Ảnh món ăn'}
                         </AvatarFallback>
                       </Avatar>
@@ -153,6 +153,7 @@ export default function AddDish() {
                         <Upload className='h-4 w-4 text-muted-foreground' />
                         <span className='sr-only'>Upload</span>
                       </button>
+                      <FormMessage className='mx-10 my-auto' />
                     </div>
                   </FormItem>
                 )}
