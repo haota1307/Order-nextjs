@@ -7,7 +7,7 @@ import {
 } from '@/schemaValidations/dish.schema'
 
 const dishApiRequest = {
-  list: () => http.get<DishListResType>('/dishes'),
+  list: () => http.get<DishListResType>('/dishes', { next: { tags: ['dishes'] } }),
   add: (body: CreateDishBodyType) => http.post<DishResType>('/dishes', body),
   getDish: (id: number) => http.get<DishResType>(`/dishes/${id}`),
   updateDish: (id: number, body: UpdateDishBodyType) =>
@@ -16,3 +16,7 @@ const dishApiRequest = {
 }
 
 export default dishApiRequest
+
+/** Xử lý caching với kỹ thuật ISR
+ * { next: { tags: ['dishes'] } => revalidate ngay lập tức dề build lại file static
+ */

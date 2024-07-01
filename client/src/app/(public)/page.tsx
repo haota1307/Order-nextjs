@@ -26,7 +26,7 @@ export default async function Home() {
           alt='Banner'
           className='absolute top-0 left-0 w-full h-full object-cover'
         />
-        <div className='z-20 relative py-10 md:py-20 px-4 sm:px-10 md:px-20'>
+        <div className='z-20 relative py-10 md:py-20 px-4 sm:px-10 md:px-20 text-white dark:text-white'>
           <h1 className='text-center text-xl sm:text-2xl md:text-4xl lg:text-5xl font-bold'>
             Nhà hàng Hafo
           </h1>
