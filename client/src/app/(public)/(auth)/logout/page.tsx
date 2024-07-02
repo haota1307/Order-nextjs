@@ -7,7 +7,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { Suspense, useEffect, useRef } from 'react'
 
 function Logout() {
-  const { setIsAuth } = useAppContext()
+  const { setRole } = useAppContext()
   const { mutateAsync } = useLogoutMutation()
   const router = useRouter()
   const ref = useRef<any>(null) // handle trường hợp '/logout' bị gọi 2 lần
@@ -25,13 +25,13 @@ function Logout() {
         setTimeout(() => {
           ref.current = null
         }, 1000)
-        setIsAuth(false)
+        setRole(undefined)
         router.push('/login')
       })
     } else {
       router.push('/')
     }
-  }, [mutateAsync, router, refreshTokenFromUrl, accessTokenFromUrl, setIsAuth])
+  }, [mutateAsync, router, refreshTokenFromUrl, accessTokenFromUrl, setRole])
   return <div>Logout ...</div>
 }
 

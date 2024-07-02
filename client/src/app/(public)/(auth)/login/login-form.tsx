@@ -9,13 +9,13 @@ import { LoginBody, LoginBodyType } from '@/schemaValidations/auth.schema'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useLoginMutation } from '@/queries/useAuth'
 import { toast } from '@/components/ui/use-toast'
-import { handleErrorApi, removeTokeformLocalStorage } from '@/lib/utils'
+import { handleErrorApi, removeTokenformLocalStorage } from '@/lib/utils'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useEffect } from 'react'
 import { useAppContext } from '@/components/app-provider'
 
 export default function LoginForm() {
-  const { setIsAuth } = useAppContext()
+  const { setRole } = useAppContext()
   const router = useRouter()
   const loginMutation = useLoginMutation()
   const searchParams = useSearchParams()
@@ -37,7 +37,7 @@ export default function LoginForm() {
         title: 'Thành công',
         description: result.payload.message,
       })
-      setIsAuth(true)
+      setRole(result.payload.data.account.role)
       router.push('/manage/dashboard')
     } catch (error) {
       handleErrorApi({
@@ -48,8 +48,8 @@ export default function LoginForm() {
   }
 
   useEffect(() => {
-    if (clearToken) setIsAuth(false)
-  }, [clearToken, setIsAuth])
+    if (clearToken) setRole(undefined)
+  }, [clearToken, setRole])
 
   return (
     <Card className='mx-auto max-w-sm'>

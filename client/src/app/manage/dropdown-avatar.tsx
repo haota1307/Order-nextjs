@@ -17,7 +17,7 @@ import { useAccountMe } from '@/queries/useAccount'
 import { useAppContext } from '@/components/app-provider'
 
 export default function DropdownAvatar() {
-  const { setIsAuth } = useAppContext()
+  const { setRole } = useAppContext()
   const logoutMutation = useLogoutMutation()
   const { data } = useAccountMe()
   const router = useRouter()
@@ -28,7 +28,7 @@ export default function DropdownAvatar() {
     if (logoutMutation.isPending) return
     try {
       await logoutMutation.mutateAsync()
-      setIsAuth(false)
+      setRole(undefined)
       router.push('/login')
     } catch (error) {
       handleErrorApi({
