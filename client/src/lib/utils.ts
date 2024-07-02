@@ -1,7 +1,8 @@
 import authApiRequest from '@/app/apiRequests/auth'
+import guestApiRequest from '@/app/apiRequests/guest'
 import { toast } from '@/components/ui/use-toast'
 import envConfig from '@/config'
-import { DishStatus, TableStatus } from '@/constants/type'
+import { DishStatus, Role, TableStatus } from '@/constants/type'
 import { EntityError } from '@/lib/http'
 import { TokenPayload } from '@/types/jwt.types'
 import { type ClassValue, clsx } from 'clsx'
@@ -92,7 +93,11 @@ export const checkAndRefreshToken = async (param?: {
   // TH2: Thời gian hết hạn của access token < 1/3 thì xử lý
   if (decodeAccessToken.exp - now < (decodeAccessToken.exp - decodeAccessToken.iat) / 3) {
     try {
-      const res = await authApiRequest.refreshToken()
+      const role = decodeRefreshToken.role
+      const res =
+        role === Role.Guest
+          ? await guestApiRequest.refreshToken()
+          : await authApiRequest.refreshToken()
       setAccessTokenToLocalStorage(res.payload.data.accessToken)
       setRefreshTokenToLocalStorage(res.payload.data.refreshToken)
       param?.onSuccess && param.onSuccess()
