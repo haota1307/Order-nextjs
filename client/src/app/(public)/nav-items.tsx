@@ -1,42 +1,82 @@
 'use client'
-
 import { useAppContext } from '@/components/app-provider'
+import { Role } from '@/constants/type'
+import { cn, handleErrorApi } from '@/lib/utils'
+import { useLogoutMutation } from '@/queries/useAuth'
+import { RoleType } from '@/types/jwt.types'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 
-const menuItems = [
+const menuItems: {
+  title: string
+  href: string
+  role?: RoleType[]
+  hideWhenLogin?: boolean
+}[] = [
   {
-    title: 'Món ăn',
-    href: '/menu',
+    title: 'Trang chủ',
+    href: '/',
   },
   {
-    title: 'Đơn hàng',
-    href: '/orders',
-    authRequired: true,
-  },
-  {
-    title: 'Đăng nhập',
-    href: '/login',
-    authRequired: false, // chưa đăng nhập thì hiển thị
+    title: 'Menu',
+    href: '/guest/menu',
+    role: [Role.Guest],
   },
   {
     title: 'Quản lý',
     href: '/manage/dashboard',
-    authRequired: true, // đăng nhập rồi thì hiển thị
+    role: [Role.Owner, Role.Employee],
+  },
+  {
+    title: 'Đăng nhập',
+    href: '/login',
+    hideWhenLogin: true,
   },
 ]
-// Server: Món ăn, đăng nhập (do không biết trạng thái đăng nhập của user)
-// Client: Món ăn, đăng nhập. Nhưng ngay sau đó Món ăn, đơn hàng, quản lý (do đã check được trạng thái đăng nhập)
-// => xung đột trạng thái Server và Client -> dùng useState, useEffect để giải quyết
+
+// Server: Món ăn, Đăng nhập. Do server không biết trạng thái đăng nhập của user
+// CLient: Đầu tiên client sẽ hiển thị là Món ăn, Đăng nhập.
+// Nhưng ngay sau đó thì client render ra là Món ăn, Đơn hàng, Quản lý do đã check được trạng thái đăng nhập
 
 export default function NavItems({ className }: { className?: string }) {
-  const { isAuth } = useAppContext()
-  return menuItems.map((item) => {
-    if ((item.authRequired === false && isAuth) || (item.authRequired === true && !isAuth))
-      return null
-    return (
-      <Link href={item.href} key={item.href} className={className}>
-        {item.title}
-      </Link>
-    )
-  })
+  const { role, setRole } = useAppContext()
+  const logoutMutation = useLogoutMutation()
+  const router = useRouter()
+
+  const logout = async () => {
+    if (logoutMutation.isPending) return
+    try {
+      await logoutMutation.mutateAsync()
+      setRole()
+      router.push('/')
+    } catch (error: any) {
+      handleErrorApi({
+        error,
+      })
+    }
+  }
+  return (
+    <>
+      {menuItems.map((item) => {
+        // 1. Trường hợp đăng nhập thì chỉ hiển thị menu đăng nhập
+        const isAuth = item.role && role && item.role.includes(role)
+        // 2. Trường hợp menu item có thể hiển thị dù cho đã đăng nhập hay chưa
+        const canShow =
+          (item.role === undefined && !item.hideWhenLogin) || (!role && item.hideWhenLogin)
+        if (isAuth || canShow) {
+          return (
+            <Link href={item.href} key={item.href} className={className}>
+              {item.title}
+            </Link>
+          )
+        }
+        return null
+      })}
+      {role && (
+        <div className={cn(className, 'cursor-pointer')} onClick={logout}>
+          Đăng xuất
+        </div>
+      )}
+    </>
+  )
 }
