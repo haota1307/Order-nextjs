@@ -2,7 +2,7 @@ import authApiRequest from '@/app/apiRequests/auth'
 import guestApiRequest from '@/app/apiRequests/guest'
 import { toast } from '@/components/ui/use-toast'
 import envConfig from '@/config'
-import { DishStatus, Role, TableStatus } from '@/constants/type'
+import { DishStatus, OrderStatus, Role, TableStatus } from '@/constants/type'
 import { EntityError } from '@/lib/http'
 import { TokenPayload } from '@/types/jwt.types'
 import { type ClassValue, clsx } from 'clsx'
@@ -132,6 +132,23 @@ export const getVietnameseTableStatus = (
       return 'Đã đặt'
     default:
       return 'Ẩn'
+  }
+}
+
+export const getVietnameseOrderStatus = (
+  status: (typeof OrderStatus)[keyof typeof OrderStatus]
+) => {
+  switch (status) {
+    case OrderStatus.Delivered:
+      return 'Đã phục vụ'
+    case OrderStatus.Paid:
+      return 'Đã thanh toán'
+    case OrderStatus.Pending:
+      return 'Chờ xử lý'
+    case OrderStatus.Processing:
+      return 'Đang nấu'
+    default:
+      return 'Từ chối'
   }
 }
 
