@@ -8,6 +8,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { X } from 'lucide-react'
 import socket from '@/lib/socket'
 import { UpdateOrderResType } from '@/schemaValidations/order.schema'
+import { toast } from '@/components/ui/use-toast'
 
 export default function OrdersCart() {
   const { data, refetch } = useGuestGetOrderListQuery()
@@ -33,6 +34,17 @@ export default function OrdersCart() {
     }
 
     function onUpdateOrder(data: UpdateOrderResType['data']) {
+      const {
+        status,
+        quantity,
+        dishSnapshot: { name },
+      } = data
+      toast({
+        title: 'Thông báo 🔊',
+        description: `Món ăn ${name} (SL: ${quantity}) vừa được cập nhật sang trạng thái #${getVietnameseOrderStatus(
+          status
+        )}`,
+      })
       refetch()
     }
 
