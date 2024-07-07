@@ -4,11 +4,13 @@ import { Badge } from '@/components/ui/badge'
 import { formatCurrency, getVietnameseOrderStatus } from '@/lib/utils'
 import { useGuestGetOrderListQuery } from '@/queries/useGuest'
 import Image from 'next/image'
-import { useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { X } from 'lucide-react'
+import socket from '@/lib/socket'
+import { UpdateOrderResType } from '@/schemaValidations/order.schema'
 
 export default function OrdersCart() {
-  const { data } = useGuestGetOrderListQuery()
+  const { data, refetch } = useGuestGetOrderListQuery()
   const orders = useMemo(() => data?.payload.data ?? [], [data])
 
   const totalPrice = useMemo(() => {
@@ -16,6 +18,36 @@ export default function OrdersCart() {
       return result + order.dishSnapshot.price * order.quantity
     }, 0)
   }, [orders])
+
+  useEffect(() => {
+    if (socket.connected) {
+      onConnect()
+    }
+
+    function onConnect() {
+      console.log(socket.id)
+    }
+
+    function onDisconnect() {
+      console.log('disconnect')
+    }
+
+    function onUpdateOrder(data: UpdateOrderResType['data']) {
+      refetch()
+    }
+
+    socket.on('update-order', onUpdateOrder)
+
+    socket.on('connect', onConnect)
+    socket.on('disconnect', onDisconnect)
+
+    return () => {
+      socket.off('connect', onConnect)
+      socket.off('disconnect', onDisconnect)
+      socket.off('update-order', onUpdateOrder)
+    }
+  }, [refetch])
+
   return (
     <>
       {orders.map((order, index) => (
@@ -34,11 +66,11 @@ export default function OrdersCart() {
           <div className='space-y-1'>
             <h3 className='text-sm'>{order.dishSnapshot.name}</h3>
             <div className='text-lg flex items-center justify-center'>
-              <p className='w-16'>{formatCurrency(order.dishSnapshot.price)}</p>
+              <p className='w-20'>{formatCurrency(order.dishSnapshot.price)}</p>
               <p className='mx-4'>
                 <X size={16} />
               </p>
-              <p className='px-2 rounded-full'>{order.quantity}</p>
+              <p className='px-2 rounded-full mr-2'>{order.quantity}</p>
             </div>
           </div>
           <div className='flex-shrink-0 ml-auto flex justify-center items-center'>
