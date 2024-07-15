@@ -29,7 +29,11 @@ import {
 import Image from 'next/image'
 import { Badge } from '@/components/ui/badge'
 import { OrderStatus, OrderStatusValues } from '@/constants/type'
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover'
 import { OrderTableContext } from '@/app/manage/orders/order-table'
 import OrderGuestDetail from '@/app/manage/orders/order-guest-detail'
 
@@ -41,7 +45,10 @@ const orderTableColumns: ColumnDef<OrderItem>[] = [
     cell: ({ row }) => <div>{row.getValue('tableNumber')}</div>,
     filterFn: (row, columnId, filterValue: string) => {
       if (filterValue === undefined) return true
-      return simpleMatchText(String(row.getValue(columnId)), String(filterValue))
+      return simpleMatchText(
+        String(row.getValue(columnId)),
+        String(filterValue)
+      )
     },
   },
   {
@@ -66,7 +73,10 @@ const orderTableColumns: ColumnDef<OrderItem>[] = [
                 </div>
               </PopoverTrigger>
               <PopoverContent className='w-[320px] sm:w-[440px]'>
-                <OrderGuestDetail guest={guest} orders={orderObjectByGuestId[guest.id]} />
+                <OrderGuestDetail
+                  guest={guest}
+                  orders={orderObjectByGuestId[guest.id]}
+                />
               </PopoverContent>
             </Popover>
           )}
@@ -75,7 +85,10 @@ const orderTableColumns: ColumnDef<OrderItem>[] = [
     },
     filterFn: (row, columnId, filterValue: string) => {
       if (filterValue === undefined) return true
-      return simpleMatchText(row.original.guest?.name ?? 'Đã bị xóa', String(filterValue))
+      return simpleMatchText(
+        row.original.guest?.name ?? 'Đã bị xóa',
+        String(filterValue)
+      )
     },
   },
   {
@@ -103,8 +116,12 @@ const orderTableColumns: ColumnDef<OrderItem>[] = [
                 className='rounded-md object-cover w-[100px] h-[100px]'
               />
               <div className='space-y-1 text-sm'>
-                <h3 className='font-semibold'>{row.original.dishSnapshot.name}</h3>
-                <div className='italic'>{formatCurrency(row.original.dishSnapshot.price)}</div>
+                <h3 className='font-semibold'>
+                  {row.original.dishSnapshot.name}
+                </h3>
+                <div className='italic'>
+                  {formatCurrency(row.original.dishSnapshot.price)}
+                </div>
                 <div>{row.original.dishSnapshot.description}</div>
               </div>
             </div>
@@ -119,7 +136,9 @@ const orderTableColumns: ColumnDef<OrderItem>[] = [
             </Badge>
           </div>
           <span className='italic'>
-            {formatCurrency(row.original.dishSnapshot.price * row.original.quantity)}
+            {formatCurrency(
+              row.original.dishSnapshot.price * row.original.quantity
+            )}
           </span>
         </div>
       </div>
@@ -130,7 +149,9 @@ const orderTableColumns: ColumnDef<OrderItem>[] = [
     header: 'Trạng thái',
     cell: function Cell({ row }) {
       const { changeStatus } = useContext(OrderTableContext)
-      const changeOrderStatus = async (status: (typeof OrderStatusValues)[number]) => {
+      const changeOrderStatus = async (
+        status: (typeof OrderStatusValues)[number]
+      ) => {
         changeStatus({
           orderId: row.original.id,
           dishId: row.original.dishSnapshot.dishId!,
@@ -174,7 +195,9 @@ const orderTableColumns: ColumnDef<OrderItem>[] = [
           {formatDateTimeToLocaleString(row.getValue('createdAt'))}
         </div>
         <div className='flex items-center space-x-4'>
-          {formatDateTimeToLocaleString(row.original.updatedAt as unknown as string)}
+          {formatDateTimeToLocaleString(
+            row.original.updatedAt as unknown as string
+          )}
         </div>
       </div>
     ),
