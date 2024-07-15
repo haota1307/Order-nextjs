@@ -1,22 +1,23 @@
-import authApiRequest from '@/app/apiRequests/auth'
-import guestApiRequest from '@/app/apiRequests/guest'
 import { toast } from '@/components/ui/use-toast'
-import envConfig from '@/config'
-import { DishStatus, OrderStatus, Role, TableStatus } from '@/constants/type'
 import { EntityError } from '@/lib/http'
-import { TokenPayload } from '@/types/jwt.types'
 import { type ClassValue, clsx } from 'clsx'
-import { decode } from 'jsonwebtoken'
 import { UseFormSetError } from 'react-hook-form'
 import { twMerge } from 'tailwind-merge'
+import jwt from 'jsonwebtoken'
 
+import { DishStatus, OrderStatus, Role, TableStatus } from '@/constants/type'
+import envConfig from '@/config'
+import { TokenPayload } from '@/types/jwt.types'
+import { format } from 'date-fns'
+import { BookX, CookingPot, HandCoins, Loader, Truck } from 'lucide-react'
+import guestApiRequest from '@/app/apiRequests/guest'
+import authApiRequest from '@/app/apiRequests/auth'
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
 /**
  * Xóa đi ký tự `/` đầu tiên của path
- * Ví dụ: /login -> login
  */
 export const normalizePath = (path: string) => {
   return path.startsWith('/') ? path.slice(1) : path
@@ -50,50 +51,49 @@ export const handleErrorApi = ({
 
 const isBrowser = typeof window !== 'undefined'
 
-export const getAccessTokenFromLocalStorage = () => {
-  return isBrowser ? localStorage.getItem('accessToken') : null
-}
-export const getRefreshTokenFromLocalStorage = () => {
-  return isBrowser ? localStorage.getItem('refreshToken') : null
-}
-export const setAccessTokenToLocalStorage = (accessToken: string) => {
-  return isBrowser && localStorage.setItem('accessToken', accessToken)
-}
-export const setRefreshTokenToLocalStorage = (refreshToken: string) => {
-  return isBrowser && localStorage.setItem('refreshToken', refreshToken)
-}
-export const removeTokenformLocalStorage = () => {
+export const getAccessTokenFromLocalStorage = () =>
+  isBrowser ? localStorage.getItem('accessToken') : null
+
+export const getRefreshTokenFromLocalStorage = () =>
+  isBrowser ? localStorage.getItem('refreshToken') : null
+export const setAccessTokenToLocalStorage = (value: string) =>
+  isBrowser && localStorage.setItem('accessToken', value)
+
+export const setRefreshTokenToLocalStorage = (value: string) =>
+  isBrowser && localStorage.setItem('refreshToken', value)
+export const removeTokensFromLocalStorage = () => {
   isBrowser && localStorage.removeItem('accessToken')
   isBrowser && localStorage.removeItem('refreshToken')
 }
-
 export const checkAndRefreshToken = async (param?: {
   onError?: () => void
   onSuccess?: () => void
 }) => {
-  /**
-   * Không nên đưa logic lấy AT và RT ra ngoài func checkAndRefreshToken
-   * Vì mỗi lần checkAndRefreshToken() được gọi sẽ lấy ra giá trị mới => tránh bug lấy giá trị đã bị cũ
-   */
+  // Không nên đưa logic lấy access và refresh token ra khỏi cái function `checkAndRefreshToken`
+  // Vì để mỗi lần mà checkAndRefreshToken() được gọi thì chúng ta se có một access và refresh token mới
+  // Tránh hiện tượng bug nó lấy access và refresh token cũ ở lần đầu rồi gọi cho các lần tiếp theo
   const accessToken = getAccessTokenFromLocalStorage()
   const refreshToken = getRefreshTokenFromLocalStorage()
+  // Chưa đăng nhập thì cũng không cho chạy
   if (!accessToken || !refreshToken) return
-  const decodeAccessToken = decodeToken(accessToken)
-  const decodeRefreshToken = decodeToken(refreshToken)
-  /**
-   * Thời điểm hết hạn (exp) được tính theo epoch time (s)
-   * còn new Date().getTime() thì nó sẽ trả về epoch time (ms)
-   */
-  const now = Math.round(new Date().getTime() / 1000)
-  // TH1: refresh token hết hạn => logout
-  if (decodeRefreshToken.exp <= now) {
-    removeTokenformLocalStorage()
+  const decodedAccessToken = decodeToken(accessToken)
+  const decodedRefreshToken = decodeToken(refreshToken)
+  // Thời điểm hết hạn của token là tính theo epoch time (s)
+  // Còn khi các bạn dùng cú pháp new Date().getTime() thì nó sẽ trả về epoch time (ms)
+  const now = new Date().getTime() / 1000 - 1
+  // trường hợp refresh token hết hạn thì cho logout
+  if (decodedRefreshToken.exp <= now) {
+    removeTokensFromLocalStorage()
     return param?.onError && param.onError()
   }
-  // TH2: Thời gian hết hạn của access token < 1/3 thì xử lý
-  if (decodeAccessToken.exp - now < (decodeAccessToken.exp - decodeAccessToken.iat) / 3) {
+  // Ví dụ access token của chúng ta có thời gian hết hạn là 10s
+  // thì mình sẽ kiểm tra còn 1/3 thời gian (3s) thì mình sẽ cho refresh token lại
+  // Thời gian còn lại sẽ tính dựa trên công thức: decodedAccessToken.exp - now
+  // Thời gian hết hạn của access token dựa trên công thức: decodedAccessToken.exp - decodedAccessToken.iat
+  if (decodedAccessToken.exp - now < (decodedAccessToken.exp - decodedAccessToken.iat) / 3) {
+    // Gọi API refresh token
     try {
-      const role = decodeRefreshToken.role
+      const role = decodedRefreshToken.role
       const res =
         role === Role.Guest
           ? await guestApiRequest.refreshToken()
@@ -108,7 +108,10 @@ export const checkAndRefreshToken = async (param?: {
 }
 
 export const formatCurrency = (number: number) => {
-  return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(number)
+  return new Intl.NumberFormat('vi-VN', {
+    style: 'currency',
+    currency: 'VND',
+  }).format(number)
 }
 
 export const getVietnameseDishStatus = (status: (typeof DishStatus)[keyof typeof DishStatus]) => {
@@ -117,19 +120,6 @@ export const getVietnameseDishStatus = (status: (typeof DishStatus)[keyof typeof
       return 'Có sẵn'
     case DishStatus.Unavailable:
       return 'Không có sẵn'
-    default:
-      return 'Ẩn'
-  }
-}
-
-export const getVietnameseTableStatus = (
-  status: (typeof TableStatus)[keyof typeof TableStatus]
-) => {
-  switch (status) {
-    case TableStatus.Available:
-      return 'Có sẵn'
-    case TableStatus.Reserved:
-      return 'Đã đặt'
     default:
       return 'Ẩn'
   }
@@ -152,10 +142,53 @@ export const getVietnameseOrderStatus = (
   }
 }
 
+export const getVietnameseTableStatus = (
+  status: (typeof TableStatus)[keyof typeof TableStatus]
+) => {
+  switch (status) {
+    case TableStatus.Available:
+      return 'Có sẵn'
+    case TableStatus.Reserved:
+      return 'Đã đặt'
+    default:
+      return 'Ẩn'
+  }
+}
+
 export const getTableLink = ({ token, tableNumber }: { token: string; tableNumber: number }) => {
   return envConfig.NEXT_PUBLIC_URL + '/tables/' + tableNumber + '?token=' + token
 }
 
 export const decodeToken = (token: string) => {
-  return decode(token) as TokenPayload
+  return jwt.decode(token) as TokenPayload
+}
+
+export function removeAccents(str: string) {
+  return str
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/đ/g, 'd')
+    .replace(/Đ/g, 'D')
+}
+
+export const simpleMatchText = (fullText: string, matchText: string) => {
+  return removeAccents(fullText.toLowerCase()).includes(
+    removeAccents(matchText.trim().toLowerCase())
+  )
+}
+
+export const formatDateTimeToLocaleString = (date: string | Date) => {
+  return format(date instanceof Date ? date : new Date(date), 'HH:mm:ss dd/MM/yyyy')
+}
+
+export const formatDateTimeToTimeString = (date: string | Date) => {
+  return format(date instanceof Date ? date : new Date(date), 'HH:mm:ss')
+}
+
+export const OrderStatusIcon = {
+  [OrderStatus.Pending]: Loader,
+  [OrderStatus.Processing]: CookingPot,
+  [OrderStatus.Rejected]: BookX,
+  [OrderStatus.Delivered]: Truck,
+  [OrderStatus.Paid]: HandCoins,
 }

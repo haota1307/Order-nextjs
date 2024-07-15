@@ -2,7 +2,7 @@ import envConfig from '@/config'
 import {
   getAccessTokenFromLocalStorage,
   normalizePath,
-  removeTokenformLocalStorage,
+  removeTokensFromLocalStorage,
   setAccessTokenToLocalStorage,
   setRefreshTokenToLocalStorage,
 } from '@/lib/utils'
@@ -132,7 +132,7 @@ const request = async <Response>(
             await clientLogoutRequest
           } catch (error) {
           } finally {
-            removeTokenformLocalStorage()
+            removeTokensFromLocalStorage()
             clientLogoutRequest = null
             // Redirect về trang login có thể dẫn đến loop vô hạn
             // Nếu không không được xử lý đúng cách
@@ -159,7 +159,7 @@ const request = async <Response>(
       setAccessTokenToLocalStorage(accessToken)
       setRefreshTokenToLocalStorage(refreshToken)
     } else if (['api/auth/logout', 'api/guest/auth/logout'].includes(normalizeUrl)) {
-      removeTokenformLocalStorage
+      removeTokensFromLocalStorage
     }
   }
   return data

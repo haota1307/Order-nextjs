@@ -7,7 +7,7 @@ import RefreshToken from '@/components/refresh-token'
 import {
   decodeToken,
   getAccessTokenFromLocalStorage,
-  removeTokenformLocalStorage,
+  removeTokensFromLocalStorage,
 } from '@/lib/utils'
 import { RoleType } from '@/types/jwt.types'
 
@@ -41,7 +41,7 @@ export default function AppProvider({ children }: { children: React.ReactNode })
   }, [])
   const setRole = useCallback((role?: RoleType | undefined) => {
     setRoleState(role)
-    if (!role) removeTokenformLocalStorage()
+    if (!role) removeTokensFromLocalStorage()
   }, [])
   const isAuth = Boolean(role)
   return (
