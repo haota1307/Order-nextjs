@@ -9,15 +9,52 @@ import { X } from 'lucide-react'
 import socket from '@/lib/socket'
 import { UpdateOrderResType } from '@/schemaValidations/order.schema'
 import { toast } from '@/components/ui/use-toast'
+import { OrderStatus } from '@/constants/type'
 
 export default function OrdersCart() {
   const { data, refetch } = useGuestGetOrderListQuery()
   const orders = useMemo(() => data?.payload.data ?? [], [data])
 
-  const totalPrice = useMemo(() => {
-    return orders.reduce((result, order) => {
-      return result + order.dishSnapshot.price * order.quantity
-    }, 0)
+  const { unPaid, paid } = useMemo(() => {
+    return orders.reduce(
+      (result, order) => {
+        if (
+          order.status === OrderStatus.Delivered ||
+          order.status === OrderStatus.Processing ||
+          order.status === OrderStatus.Pending
+        ) {
+          return {
+            ...result,
+            unPaid: {
+              price:
+                result.unPaid.price + order.dishSnapshot.price * order.quantity,
+              quantity: result.unPaid.quantity + order.quantity,
+            },
+          }
+        }
+        if (order.status === OrderStatus.Paid) {
+          return {
+            ...result,
+            paid: {
+              price:
+                result.paid.price + order.dishSnapshot.price * order.quantity,
+              quantity: result.paid.quantity + order.quantity,
+            },
+          }
+        }
+        return result
+      },
+      {
+        unPaid: {
+          price: 0,
+          quantity: 0,
+        },
+        paid: {
+          price: 0,
+          quantity: 0,
+        },
+      }
+    )
   }, [orders])
 
   useEffect(() => {
@@ -86,14 +123,24 @@ export default function OrdersCart() {
             </div>
           </div>
           <div className='flex-shrink-0 ml-auto flex justify-center items-center'>
-            <Badge variant={'outline'}>{getVietnameseOrderStatus(order.status)}</Badge>
+            <Badge variant={'outline'}>
+              {getVietnameseOrderStatus(order.status)}
+            </Badge>
           </div>
         </div>
       ))}
+      {paid.quantity !== 0 && (
+        <div className='sticky bottom-0'>
+          <div className='w-full flex items-center justify-center space-x-4 text-xl'>
+            <span>Đơn đã thanh toán · {paid.quantity} món</span>
+            <span>{formatCurrency(paid.price)}</span>
+          </div>
+        </div>
+      )}
       <div className='sticky bottom-0 text-orange-500'>
         <div className='w-full flex items-center justify-center space-x-4 text-xl'>
-          <span>Tổng cộng · {orders.length} món</span>
-          <span>{formatCurrency(totalPrice)}</span>
+          <span>Đơn chưa thanh toán · {unPaid.quantity} món</span>
+          <span>{formatCurrency(unPaid.price)}</span>
         </div>
       </div>
     </>
