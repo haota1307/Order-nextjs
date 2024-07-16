@@ -10,8 +10,8 @@ import envConfig from '@/config'
 import { TokenPayload } from '@/types/jwt.types'
 import { format } from 'date-fns'
 import { BookX, CookingPot, HandCoins, Loader, Truck } from 'lucide-react'
-import guestApiRequest from '@/app/apiRequests/guest'
-import authApiRequest from '@/app/apiRequests/auth'
+import guestApiRequest from '@/apiRequests/guest'
+import authApiRequest from '@/apiRequests/auth'
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
@@ -90,7 +90,10 @@ export const checkAndRefreshToken = async (param?: {
   // thì mình sẽ kiểm tra còn 1/3 thời gian (3s) thì mình sẽ cho refresh token lại
   // Thời gian còn lại sẽ tính dựa trên công thức: decodedAccessToken.exp - now
   // Thời gian hết hạn của access token dựa trên công thức: decodedAccessToken.exp - decodedAccessToken.iat
-  if (decodedAccessToken.exp - now < (decodedAccessToken.exp - decodedAccessToken.iat) / 3) {
+  if (
+    decodedAccessToken.exp - now <
+    (decodedAccessToken.exp - decodedAccessToken.iat) / 3
+  ) {
     // Gọi API refresh token
     try {
       const role = decodedRefreshToken.role
@@ -114,7 +117,9 @@ export const formatCurrency = (number: number) => {
   }).format(number)
 }
 
-export const getVietnameseDishStatus = (status: (typeof DishStatus)[keyof typeof DishStatus]) => {
+export const getVietnameseDishStatus = (
+  status: (typeof DishStatus)[keyof typeof DishStatus]
+) => {
   switch (status) {
     case DishStatus.Available:
       return 'Có sẵn'
@@ -155,8 +160,16 @@ export const getVietnameseTableStatus = (
   }
 }
 
-export const getTableLink = ({ token, tableNumber }: { token: string; tableNumber: number }) => {
-  return envConfig.NEXT_PUBLIC_URL + '/tables/' + tableNumber + '?token=' + token
+export const getTableLink = ({
+  token,
+  tableNumber,
+}: {
+  token: string
+  tableNumber: number
+}) => {
+  return (
+    envConfig.NEXT_PUBLIC_URL + '/tables/' + tableNumber + '?token=' + token
+  )
 }
 
 export const decodeToken = (token: string) => {
@@ -178,7 +191,10 @@ export const simpleMatchText = (fullText: string, matchText: string) => {
 }
 
 export const formatDateTimeToLocaleString = (date: string | Date) => {
-  return format(date instanceof Date ? date : new Date(date), 'HH:mm:ss dd/MM/yyyy')
+  return format(
+    date instanceof Date ? date : new Date(date),
+    'HH:mm:ss dd/MM/yyyy'
+  )
 }
 
 export const formatDateTimeToTimeString = (date: string | Date) => {

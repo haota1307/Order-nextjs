@@ -1,4 +1,4 @@
-import dishApiRequest from '@/app/apiRequests/dish'
+import dishApiRequest from '@/apiRequests/dish'
 import { formatCurrency } from '@/lib/utils'
 import { DishListResType } from '@/schemaValidations/dish.schema'
 import Image from 'next/image'
@@ -30,7 +30,9 @@ export default async function Home() {
           <h1 className='text-center text-xl sm:text-2xl md:text-4xl lg:text-5xl font-bold'>
             Nhà hàng Hafo
           </h1>
-          <p className='text-center text-sm sm:text-base mt-4'>Vị ngon, trọn khoảnh khắc</p>
+          <p className='text-center text-sm sm:text-base mt-4'>
+            Vị ngon, trọn khoảnh khắc
+          </p>
         </div>
       </section>
       <section className='space-y-10 py-16'>

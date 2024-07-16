@@ -1,4 +1,4 @@
-import dishApiRequest from '@/app/apiRequests/dish'
+import dishApiRequest from '@/apiRequests/dish'
 import { UpdateDishBodyType } from '@/schemaValidations/dish.schema'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
@@ -9,7 +9,13 @@ export const useDishListQuery = () => {
   })
 }
 
-export const useGetDishQuery = ({ id, enabled }: { id: number; enabled: boolean }) => {
+export const useGetDishQuery = ({
+  id,
+  enabled,
+}: {
+  id: number
+  enabled: boolean
+}) => {
   return useQuery({
     queryKey: ['dishes', id],
     queryFn: () => dishApiRequest.getDish(id),

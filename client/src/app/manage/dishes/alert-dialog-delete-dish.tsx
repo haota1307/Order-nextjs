@@ -1,4 +1,4 @@
-import revalidateApiRequest from '@/app/apiRequests/revalidate'
+import revalidateApiRequest from '@/apiRequests/revalidate'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -62,7 +62,9 @@ export default function AlertDialogDeleteDish({
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction onClick={deleteAccount}>Continue</AlertDialogAction>
+          <AlertDialogAction onClick={deleteAccount}>
+            Continue
+          </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

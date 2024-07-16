@@ -1,4 +1,4 @@
-import orderApiRequest from '@/app/apiRequests/order'
+import orderApiRequest from '@/apiRequests/order'
 import {
   GetOrdersQueryParamsType,
   UpdateOrderBodyType,

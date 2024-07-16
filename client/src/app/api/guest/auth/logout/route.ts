@@ -1,5 +1,5 @@
 // import guestApiRequest from '@/apiRequests/guest'
-import guestApiRequest from '@/app/apiRequests/guest'
+import guestApiRequest from '@/apiRequests/guest'
 import { cookies } from 'next/headers'
 
 export async function POST(request: Request) {

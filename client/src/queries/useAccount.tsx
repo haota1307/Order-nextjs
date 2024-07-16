@@ -1,4 +1,4 @@
-import accountApiRequest from '@/app/apiRequests/account'
+import accountApiRequest from '@/apiRequests/account'
 import { UpdateEmployeeAccountBodyType } from '@/schemaValidations/account.schema'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
@@ -28,7 +28,13 @@ export const useGetAccountList = () => {
   })
 }
 
-export const useGetAccount = ({ id, enabled }: { id: number; enabled: boolean }) => {
+export const useGetAccount = ({
+  id,
+  enabled,
+}: {
+  id: number
+  enabled: boolean
+}) => {
   return useQuery({
     queryKey: ['accounts', id],
     queryFn: () => accountApiRequest.getEmployee(id),
@@ -52,7 +58,10 @@ export const useAddAccountMutation = () => {
 export const useUpdateAccountMutation = () => {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: ({ id, ...body }: UpdateEmployeeAccountBodyType & { id: number }) =>
+    mutationFn: ({
+      id,
+      ...body
+    }: UpdateEmployeeAccountBodyType & { id: number }) =>
       accountApiRequest.updatEmployee(id, body),
     onSuccess: () => {
       // Thành công sẽ fetch lại data ở table

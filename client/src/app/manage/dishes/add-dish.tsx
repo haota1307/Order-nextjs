@@ -14,10 +14,19 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { PlusCircle, Upload } from 'lucide-react'
 import { useMemo, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form'
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormMessage,
+} from '@/components/ui/form'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { getVietnameseDishStatus, handleErrorApi } from '@/lib/utils'
-import { CreateDishBody, CreateDishBodyType } from '@/schemaValidations/dish.schema'
+import {
+  CreateDishBody,
+  CreateDishBodyType,
+} from '@/schemaValidations/dish.schema'
 import { DishStatus, DishStatusValues } from '@/constants/type'
 import {
   Select,
@@ -30,7 +39,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { useAddDishMutation } from '@/queries/useDish'
 import { useUploadMediaMutation } from '@/queries/useMedia'
 import { toast } from '@/components/ui/use-toast'
-import revalidateApiRequest from '@/app/apiRequests/revalidate'
+import revalidateApiRequest from '@/apiRequests/revalidate'
 
 export default function AddDish() {
   const [file, setFile] = useState<File | null>(null)
@@ -69,7 +78,9 @@ export default function AddDish() {
       if (file) {
         const formData = new FormData()
         formData.append('file', file)
-        const uploadImageResult = await uploadMediaMutation.mutateAsync(formData)
+        const uploadImageResult = await uploadMediaMutation.mutateAsync(
+          formData
+        )
         const imageUrl = uploadImageResult.payload.data
         body = {
           ...values,
@@ -104,7 +115,9 @@ export default function AddDish() {
       <DialogTrigger asChild>
         <Button size='sm' className='h-7 gap-1'>
           <PlusCircle className='h-3.5 w-3.5' />
-          <span className='sr-only sm:not-sr-only sm:whitespace-nowrap'>Thêm món ăn</span>
+          <span className='sr-only sm:not-sr-only sm:whitespace-nowrap'>
+            Thêm món ăn
+          </span>
         </Button>
       </DialogTrigger>
       <DialogContent className='sm:max-w-[600px] max-h-screen overflow-auto'>
@@ -182,7 +195,12 @@ export default function AddDish() {
                     <div className='grid grid-cols-4 items-center justify-items-start gap-4'>
                       <Label htmlFor='price'>Giá</Label>
                       <div className='col-span-3 w-full space-y-2'>
-                        <Input id='price' className='w-full' {...field} type='number' />
+                        <Input
+                          id='price'
+                          className='w-full'
+                          {...field}
+                          type='number'
+                        />
                         <FormMessage />
                       </div>
                     </div>
@@ -197,7 +215,11 @@ export default function AddDish() {
                     <div className='grid grid-cols-4 items-center justify-items-start gap-4'>
                       <Label htmlFor='description'>Mô tả sản phẩm</Label>
                       <div className='col-span-3 w-full space-y-2'>
-                        <Textarea id='description' className='w-full' {...field} />
+                        <Textarea
+                          id='description'
+                          className='w-full'
+                          {...field}
+                        />
                         <FormMessage />
                       </div>
                     </div>
@@ -212,7 +234,10 @@ export default function AddDish() {
                     <div className='grid grid-cols-4 items-center justify-items-start gap-4'>
                       <Label htmlFor='description'>Trạng thái</Label>
                       <div className='col-span-3 w-full space-y-2'>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                        >
                           <FormControl>
                             <SelectTrigger>
                               <SelectValue placeholder='Chọn trạng thái' />

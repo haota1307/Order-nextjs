@@ -1,4 +1,4 @@
-import tableApiRequest from '@/app/apiRequests/table'
+import tableApiRequest from '@/apiRequests/table'
 import { UpdateTableBodyType } from '@/schemaValidations/table.schema'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
@@ -9,7 +9,13 @@ export const useTableListQuery = () => {
   })
 }
 
-export const useGetTableQuery = ({ id, enabled }: { id: number; enabled: boolean }) => {
+export const useGetTableQuery = ({
+  id,
+  enabled,
+}: {
+  id: number
+  enabled: boolean
+}) => {
   return useQuery({
     queryKey: ['tables', id],
     queryFn: () => tableApiRequest.getTable(id),

@@ -1,4 +1,4 @@
-import authApiRequest from '@/app/apiRequests/auth'
+import authApiRequest from '@/apiRequests/auth'
 import { cookies } from 'next/headers'
 
 export async function POST(request: Request) {
@@ -20,6 +20,9 @@ export async function POST(request: Request) {
     })
     return Response.json(result.payload)
   } catch (error) {
-    return Response.json({ message: 'Lỗi khi gọi đến API server backend' }, { status: 200 })
+    return Response.json(
+      { message: 'Lỗi khi gọi đến API server backend' },
+      { status: 200 }
+    )
   }
 }
