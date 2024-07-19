@@ -56,7 +56,7 @@ export const columns: ColumnDef<DishItem>[] = [
         <span>{row.original.name}</span>
       </div>
     ),
-    filterFn: (row, filterValue: string) => {
+    filterFn: (row, columnId, filterValue: string) => {
       if (filterValue === undefined) return true
       return simpleMatchText(String(row.original.name), String(filterValue))
     },
@@ -217,7 +217,13 @@ export function DishesDialog({
                 <AutoPagination
                   page={table.getState().pagination.pageIndex + 1}
                   pageSize={table.getPageCount()}
-                  pathname='/manage/dishes'
+                  onClick={(pageNumber) =>
+                    table.setPagination({
+                      pageIndex: pageNumber - 1,
+                      pageSize: PAGE_SIZE,
+                    })
+                  }
+                  isLink={false}
                 />
               </div>
             </div>
