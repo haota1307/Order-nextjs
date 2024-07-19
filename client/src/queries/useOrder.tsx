@@ -5,7 +5,6 @@ import {
   UpdateOrderBodyType,
 } from '@/schemaValidations/order.schema'
 import { useMutation, useQuery } from '@tanstack/react-query'
-import { number } from 'zod'
 
 export const useUpdateOrderMutation = () => {
   return useMutation({
@@ -42,5 +41,11 @@ export const useGetOrderDetailQuery = ({
 export const usePayForGuestMutation = () => {
   return useMutation({
     mutationFn: (body: PayGuestOrdersBodyType) => orderApiRequest.pay(body),
+  })
+}
+
+export const useCreateOrderMutation = () => {
+  return useMutation({
+    mutationFn: orderApiRequest.createOrder,
   })
 }

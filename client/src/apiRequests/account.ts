@@ -4,9 +4,14 @@ import {
   AccountResType,
   ChangePasswordBodyType,
   CreateEmployeeAccountBodyType,
+  CreateGuestBodyType,
+  CreateGuestResType,
+  GetGuestListQueryParamsType,
+  GetListGuestsResType,
   UpdateEmployeeAccountBodyType,
   UpdateMeBodyType,
 } from '@/schemaValidations/account.schema'
+import queryString from 'query-string'
 
 const accountApiRequest = {
   me: () => http.get<AccountResType>('/accounts/me'),
@@ -16,7 +21,8 @@ const accountApiRequest = {
         Authorization: `Bearer ${accessToken}`,
       },
     }),
-  updateMe: (body: UpdateMeBodyType) => http.put<AccountResType>('/accounts/me', body),
+  updateMe: (body: UpdateMeBodyType) =>
+    http.put<AccountResType>('/accounts/me', body),
   changePassword: (body: ChangePasswordBodyType) =>
     http.put<AccountResType>('/accounts/change-password', body),
   list: () => http.get<AccountListResType>('/accounts'),
@@ -24,8 +30,20 @@ const accountApiRequest = {
     http.post<AccountResType>('/accounts', body),
   updatEmployee: (id: number, body: UpdateEmployeeAccountBodyType) =>
     http.put<AccountResType>(`/accounts/detail/${id}`, body),
-  getEmployee: (id: number) => http.get<AccountResType>(`/accounts/detail/${id}`),
-  deleteEmployee: (id: number) => http.delete<AccountResType>(`/accounts/detail/${id}`),
+  getEmployee: (id: number) =>
+    http.get<AccountResType>(`/accounts/detail/${id}`),
+  deleteEmployee: (id: number) =>
+    http.delete<AccountResType>(`/accounts/detail/${id}`),
+  guestList: (queryParams: GetGuestListQueryParamsType) =>
+    http.get<GetListGuestsResType>(
+      '/accounts/guests?' +
+        queryString.stringify({
+          fromDate: queryParams.fromDate?.toISOString(),
+          toDate: queryParams.toDate?.toISOString(),
+        })
+    ),
+  createGuest: (body: CreateGuestBodyType) =>
+    http.post<CreateGuestResType>('accounts/guests', body),
 }
 
 export default accountApiRequest
