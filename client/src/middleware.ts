@@ -5,6 +5,7 @@ import type { NextRequest } from 'next/server'
 
 const managePaths = ['/manage']
 const guestPaths = ['/guest']
+const ownerPaths = ['/manage/accounts']
 const privatePaths = [...managePaths, ...guestPaths]
 const unAuthPaths = ['/login']
 
@@ -25,7 +26,10 @@ export function middleware(request: NextRequest) {
       return NextResponse.redirect(new URL('/', request.url))
     }
     // 2.2 Trường hợp access token hết hạn ở cookie (cookie tự xóa)
-    if (privatePaths.some((path) => pathname.startsWith(path)) && !accessToken) {
+    if (
+      privatePaths.some((path) => pathname.startsWith(path)) &&
+      !accessToken
+    ) {
       const url = new URL('/refresh-token', request.url)
       url.searchParams.set('refreshToken', refreshToken)
       url.searchParams.set('redirect', pathname)
@@ -34,8 +38,12 @@ export function middleware(request: NextRequest) {
     // 2.3 vào không đúng role -> redirect vè trang chủ
     const role = decodeToken(refreshToken).role
     if (
-      (role === Role.Guest && managePaths.some((path) => pathname.startsWith(path))) ||
-      (role !== Role.Guest && guestPaths.some((path) => pathname.startsWith(path)))
+      (role === Role.Guest &&
+        managePaths.some((path) => pathname.startsWith(path))) ||
+      (role !== Role.Guest &&
+        guestPaths.some((path) => pathname.startsWith(path))) ||
+      (role !== Role.Owner &&
+        ownerPaths.some((path) => pathname.startsWith(path)))
     ) {
       return NextResponse.redirect(new URL('/', request.url))
     }
