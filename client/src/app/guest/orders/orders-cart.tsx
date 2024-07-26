@@ -1,24 +1,23 @@
 'use client'
 
+import { useAppContext } from '@/components/app-provider'
 import { Badge } from '@/components/ui/badge'
+import { toast } from '@/components/ui/use-toast'
+import { OrderStatus } from '@/constants/type'
 import { formatCurrency, getVietnameseOrderStatus } from '@/lib/utils'
 import { useGuestGetOrderListQuery } from '@/queries/useGuest'
-import Image from 'next/image'
-import { useEffect, useMemo, useState } from 'react'
-import { X } from 'lucide-react'
-import socket from '@/lib/socket'
 import {
   PayGuestOrdersResType,
   UpdateOrderResType,
 } from '@/schemaValidations/order.schema'
-import { toast } from '@/components/ui/use-toast'
-import { OrderStatus } from '@/constants/type'
+import Image from 'next/image'
+import { useEffect, useMemo } from 'react'
 
 export default function OrdersCart() {
   const { data, refetch } = useGuestGetOrderListQuery()
   const orders = useMemo(() => data?.payload.data ?? [], [data])
-
-  const { unPaid, paid } = useMemo(() => {
+  const { socket } = useAppContext()
+  const { waitingForPaying, paid } = useMemo(() => {
     return orders.reduce(
       (result, order) => {
         if (
@@ -28,10 +27,11 @@ export default function OrdersCart() {
         ) {
           return {
             ...result,
-            unPaid: {
+            waitingForPaying: {
               price:
-                result.unPaid.price + order.dishSnapshot.price * order.quantity,
-              quantity: result.unPaid.quantity + order.quantity,
+                result.waitingForPaying.price +
+                order.dishSnapshot.price * order.quantity,
+              quantity: result.waitingForPaying.quantity + order.quantity,
             },
           }
         }
@@ -48,7 +48,7 @@ export default function OrdersCart() {
         return result
       },
       {
-        unPaid: {
+        waitingForPaying: {
           price: 0,
           quantity: 0,
         },
@@ -61,12 +61,12 @@ export default function OrdersCart() {
   }, [orders])
 
   useEffect(() => {
-    if (socket.connected) {
+    if (socket?.connected) {
       onConnect()
     }
 
     function onConnect() {
-      console.log(socket.id)
+      console.log(socket?.id)
     }
 
     function onDisconnect() {
@@ -75,15 +75,13 @@ export default function OrdersCart() {
 
     function onUpdateOrder(data: UpdateOrderResType['data']) {
       const {
-        status,
-        quantity,
         dishSnapshot: { name },
+        quantity,
       } = data
       toast({
-        title: 'Thông báo 🔊',
-        description: `Món ăn ${name} (SL: ${quantity}) vừa được cập nhật sang trạng thái #${getVietnameseOrderStatus(
-          status
-        )}`,
+        description: `Món ${name} (SL: ${quantity}) vừa được cập nhật sang trạng thái "${getVietnameseOrderStatus(
+          data.status
+        )}"`,
       })
       refetch()
     }
@@ -91,48 +89,43 @@ export default function OrdersCart() {
     function onPayment(data: PayGuestOrdersResType['data']) {
       const { guest } = data[0]
       toast({
-        title: 'Thông báo 🔊',
-        description: `Khách hàng: ${guest?.name} tại bàn ${guest?.tableNumber} thanh toán thành công ${data.length} đơn`,
+        description: `${guest?.name} tại bàn ${guest?.tableNumber} thanh toán thành công ${data.length} đơn`,
       })
       refetch()
     }
 
-    socket.on('update-order', onUpdateOrder)
-    socket.on('payment', onPayment)
-    socket.on('connect', onConnect)
-    socket.on('disconnect', onDisconnect)
+    socket?.on('update-order', onUpdateOrder)
+    socket?.on('payment', onPayment)
+    socket?.on('connect', onConnect)
+    socket?.on('disconnect', onDisconnect)
 
     return () => {
-      socket.off('connect', onConnect)
-      socket.off('disconnect', onDisconnect)
-      socket.off('update-order', onUpdateOrder)
-      socket.off('payment', onPayment)
+      socket?.off('connect', onConnect)
+      socket?.off('disconnect', onDisconnect)
+      socket?.off('update-order', onUpdateOrder)
+      socket?.off('payment', onPayment)
     }
-  }, [refetch])
-
+  }, [refetch, socket])
   return (
     <>
       {orders.map((order, index) => (
-        <div key={order.id} className='flex items-center justify-center p-2'>
+        <div key={order.id} className='flex gap-4'>
           <div className='text-sm font-semibold'>{index + 1}</div>
-          <div className='flex-shrink-0 relative shadow-md'>
+          <div className='flex-shrink-0 relative'>
             <Image
               src={order.dishSnapshot.image}
               alt={order.dishSnapshot.name}
               height={100}
               width={100}
               quality={100}
-              className='object-cover w-[80px] h-[80px] rounded-md mx-8'
+              className='object-cover w-[80px] h-[80px] rounded-md'
             />
           </div>
           <div className='space-y-1'>
             <h3 className='text-sm'>{order.dishSnapshot.name}</h3>
-            <div className='text-lg flex items-center justify-center'>
-              <p className='w-20'>{formatCurrency(order.dishSnapshot.price)}</p>
-              <p className='mx-4'>
-                <X size={16} />
-              </p>
-              <p className='px-2 rounded-full mr-2'>{order.quantity}</p>
+            <div className='text-xs font-semibold'>
+              {formatCurrency(order.dishSnapshot.price)} x{' '}
+              <Badge className='px-1'>{order.quantity}</Badge>
             </div>
           </div>
           <div className='flex-shrink-0 ml-auto flex justify-center items-center'>
@@ -143,17 +136,17 @@ export default function OrdersCart() {
         </div>
       ))}
       {paid.quantity !== 0 && (
-        <div className='sticky bottom-0'>
-          <div className='w-full flex items-center justify-center space-x-4 text-xl'>
+        <div className='sticky bottom-0 '>
+          <div className='w-full flex space-x-4 text-xl font-semibold'>
             <span>Đơn đã thanh toán · {paid.quantity} món</span>
             <span>{formatCurrency(paid.price)}</span>
           </div>
         </div>
       )}
-      <div className='sticky bottom-0 text-orange-500'>
-        <div className='w-full flex items-center justify-center space-x-4 text-xl'>
-          <span>Đơn chưa thanh toán · {unPaid.quantity} món</span>
-          <span>{formatCurrency(unPaid.price)}</span>
+      <div className='sticky bottom-0 '>
+        <div className='w-full flex space-x-4 text-xl font-semibold'>
+          <span>Đơn chưa thanh toán · {waitingForPaying.quantity} món</span>
+          <span>{formatCurrency(waitingForPaying.price)}</span>
         </div>
       </div>
     </>

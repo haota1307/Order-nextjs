@@ -4,15 +4,15 @@ import { type ClassValue, clsx } from 'clsx'
 import { UseFormSetError } from 'react-hook-form'
 import { twMerge } from 'tailwind-merge'
 import jwt from 'jsonwebtoken'
-
+import authApiRequest from '@/apiRequests/auth'
 import { DishStatus, OrderStatus, Role, TableStatus } from '@/constants/type'
 import envConfig from '@/config'
 import { TokenPayload } from '@/types/jwt.types'
+import guestApiRequest from '@/apiRequests/guest'
 import { format } from 'date-fns'
 import { BookX, CookingPot, HandCoins, Loader, Truck } from 'lucide-react'
-import guestApiRequest from '@/apiRequests/guest'
-import authApiRequest from '@/apiRequests/auth'
-import exp from 'constants'
+import { io } from 'socket.io-client'
+
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
@@ -82,7 +82,7 @@ export const checkAndRefreshToken = async (param?: {
   const decodedRefreshToken = decodeToken(refreshToken)
   // Thời điểm hết hạn của token là tính theo epoch time (s)
   // Còn khi các bạn dùng cú pháp new Date().getTime() thì nó sẽ trả về epoch time (ms)
-  const now = new Date().getTime() / 1000 - 1
+  const now = Math.round(new Date().getTime() / 1000)
   // trường hợp refresh token hết hạn thì cho logout
   if (decodedRefreshToken.exp <= now) {
     removeTokensFromLocalStorage()
@@ -202,6 +202,14 @@ export const formatDateTimeToLocaleString = (date: string | Date) => {
 
 export const formatDateTimeToTimeString = (date: string | Date) => {
   return format(date instanceof Date ? date : new Date(date), 'HH:mm:ss')
+}
+
+export const generateSocketInstace = (accessToken: string) => {
+  return io(envConfig.NEXT_PUBLIC_API_ENDPOINT, {
+    auth: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  })
 }
 
 export const OrderStatusIcon = {

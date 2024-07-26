@@ -6,29 +6,30 @@ import { Label } from '@/components/ui/label'
 import { useForm } from 'react-hook-form'
 import { Form, FormField, FormItem, FormMessage } from '@/components/ui/form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { GuestLoginBody, GuestLoginBodyType } from '@/schemaValidations/guest.schema'
-import { useParams, useSearchParams } from 'next/navigation'
-import { useRouter } from 'next/navigation'
+import {
+  GuestLoginBody,
+  GuestLoginBodyType,
+} from '@/schemaValidations/guest.schema'
+import { useParams, useRouter, useSearchParams } from 'next/navigation'
 import { useEffect } from 'react'
 import { useGuestLoginMutation } from '@/queries/useGuest'
 import { useAppContext } from '@/components/app-provider'
-import { handleErrorApi } from '@/lib/utils'
+import { generateSocketInstace, handleErrorApi } from '@/lib/utils'
 
 export default function GuestLoginForm() {
-  const { setRole } = useAppContext()
-  const router = useRouter()
+  const { setRole, setSocket } = useAppContext()
   const searchParams = useSearchParams()
   const params = useParams()
-  const guestLoginMutation = useGuestLoginMutation()
-
   const tableNumber = Number(params.number)
   const token = searchParams.get('token')
+  const router = useRouter()
+  const loginMutation = useGuestLoginMutation()
   const form = useForm<GuestLoginBodyType>({
     resolver: zodResolver(GuestLoginBody),
     defaultValues: {
       name: '',
       token: token ?? '',
-      tableNumber: tableNumber,
+      tableNumber,
     },
   })
 
@@ -39,10 +40,11 @@ export default function GuestLoginForm() {
   }, [token, router])
 
   async function onSubmit(values: GuestLoginBodyType) {
-    if (guestLoginMutation.isPending) return
+    if (loginMutation.isPending) return
     try {
-      const result = await guestLoginMutation.mutateAsync(values)
+      const result = await loginMutation.mutateAsync(values)
       setRole(result.payload.data.guest.role)
+      setSocket(generateSocketInstace(result.payload.data.accessToken))
       router.push('/guest/menu')
     } catch (error) {
       handleErrorApi({
@@ -62,9 +64,7 @@ export default function GuestLoginForm() {
           <form
             className='space-y-2 max-w-[600px] flex-shrink-0 w-full'
             noValidate
-            onSubmit={form.handleSubmit(onSubmit, (err) => {
-              console.log(err)
-            })}
+            onSubmit={form.handleSubmit(onSubmit, console.log)}
           >
             <div className='grid gap-4'>
               <FormField

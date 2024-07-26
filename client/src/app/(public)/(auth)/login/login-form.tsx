@@ -1,6 +1,12 @@
 'use client'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useForm } from 'react-hook-form'
@@ -9,18 +15,16 @@ import { LoginBody, LoginBodyType } from '@/schemaValidations/auth.schema'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useLoginMutation } from '@/queries/useAuth'
 import { toast } from '@/components/ui/use-toast'
-import { handleErrorApi } from '@/lib/utils'
+import { generateSocketInstace, handleErrorApi } from '@/lib/utils'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useEffect } from 'react'
 import { useAppContext } from '@/components/app-provider'
 
 export default function LoginForm() {
-  const { setRole } = useAppContext()
-  const router = useRouter()
   const loginMutation = useLoginMutation()
   const searchParams = useSearchParams()
-
-  const clearToken = searchParams.get('clearTokens')
+  const clearTokens = searchParams.get('clearTokens')
+  const { setRole, setSocket } = useAppContext()
   const form = useForm<LoginBodyType>({
     resolver: zodResolver(LoginBody),
     defaultValues: {
@@ -28,18 +32,23 @@ export default function LoginForm() {
       password: '',
     },
   })
-
+  const router = useRouter()
+  useEffect(() => {
+    if (clearTokens) {
+      setRole()
+    }
+  }, [clearTokens, setRole])
   const onSubmit = async (data: LoginBodyType) => {
     if (loginMutation.isPending) return
     try {
       const result = await loginMutation.mutateAsync(data)
       toast({
-        title: 'Thành công',
         description: result.payload.message,
       })
       setRole(result.payload.data.account.role)
       router.push('/manage/dashboard')
-    } catch (error) {
+      setSocket(generateSocketInstace(result.payload.data.accessToken))
+    } catch (error: any) {
       handleErrorApi({
         error,
         setError: form.setError,
@@ -47,15 +56,13 @@ export default function LoginForm() {
     }
   }
 
-  useEffect(() => {
-    if (clearToken) setRole(undefined)
-  }, [clearToken, setRole])
-
   return (
     <Card className='mx-auto max-w-sm'>
       <CardHeader>
         <CardTitle className='text-2xl'>Đăng nhập</CardTitle>
-        <CardDescription>Nhập email và mật khẩu của bạn để đăng nhập vào hệ thống</CardDescription>
+        <CardDescription>
+          Nhập email và mật khẩu của bạn để đăng nhập vào hệ thống
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <Form {...form}>
@@ -95,7 +102,12 @@ export default function LoginForm() {
                       <div className='flex items-center'>
                         <Label htmlFor='password'>Password</Label>
                       </div>
-                      <Input id='password' type='password' required {...field} />
+                      <Input
+                        id='password'
+                        type='password'
+                        required
+                        {...field}
+                      />
                       <FormMessage />
                     </div>
                   </FormItem>

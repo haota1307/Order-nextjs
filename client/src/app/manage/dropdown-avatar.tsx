@@ -17,20 +17,19 @@ import { useAccountMe } from '@/queries/useAccount'
 import { useAppContext } from '@/components/app-provider'
 
 export default function DropdownAvatar() {
-  const { setRole } = useAppContext()
   const logoutMutation = useLogoutMutation()
-  const { data } = useAccountMe()
   const router = useRouter()
-
+  const { data } = useAccountMe()
+  const { setRole, disconnectSocket } = useAppContext()
   const account = data?.payload.data
-
-  const handleLogout = async () => {
+  const logout = async () => {
     if (logoutMutation.isPending) return
     try {
       await logoutMutation.mutateAsync()
-      setRole(undefined)
-      router.push('/login')
-    } catch (error) {
+      setRole()
+      disconnectSocket()
+      router.push('/')
+    } catch (error: any) {
       handleErrorApi({
         error,
       })
@@ -39,10 +38,19 @@ export default function DropdownAvatar() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant='outline' size='icon' className='overflow-hidden rounded-full'>
+        <Button
+          variant='outline'
+          size='icon'
+          className='overflow-hidden rounded-full'
+        >
           <Avatar>
-            <AvatarImage src={account?.avatar ?? undefined} alt={account?.name} />
-            <AvatarFallback>{account?.name.slice(0, 2).toUpperCase()}</AvatarFallback>
+            <AvatarImage
+              src={account?.avatar ?? undefined}
+              alt={account?.name}
+            />
+            <AvatarFallback>
+              {account?.name.slice(0, 2).toUpperCase()}
+            </AvatarFallback>
           </Avatar>
         </Button>
       </DropdownMenuTrigger>
@@ -56,7 +64,7 @@ export default function DropdownAvatar() {
         </DropdownMenuItem>
         <DropdownMenuItem>Hỗ trợ</DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={handleLogout}>Đăng xuất</DropdownMenuItem>
+        <DropdownMenuItem onClick={logout}>Đăng xuất</DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   )

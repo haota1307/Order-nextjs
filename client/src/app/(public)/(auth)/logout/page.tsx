@@ -1,40 +1,52 @@
 'use client'
 
 import { useAppContext } from '@/components/app-provider'
-import { getAccessTokenFromLocalStorage, getRefreshTokenFromLocalStorage } from '@/lib/utils'
+import {
+  getAccessTokenFromLocalStorage,
+  getRefreshTokenFromLocalStorage,
+} from '@/lib/utils'
 import { useLogoutMutation } from '@/queries/useAuth'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Suspense, useEffect, useRef } from 'react'
 
 function Logout() {
-  const { setRole } = useAppContext()
   const { mutateAsync } = useLogoutMutation()
   const router = useRouter()
-  const ref = useRef<any>(null) // handle trường hợp '/logout' bị gọi 2 lần
-  const searchParams = useSearchParams() // handle trường hợp bị bịp gửi link chứa route /logout
+  const { setRole, disconnectSocket } = useAppContext()
+  const searchParams = useSearchParams()
   const refreshTokenFromUrl = searchParams.get('refreshToken')
   const accessTokenFromUrl = searchParams.get('accessToken')
+  const ref = useRef<any>(null)
   useEffect(() => {
     if (
       !ref.current &&
-      ((refreshTokenFromUrl && refreshTokenFromUrl === getRefreshTokenFromLocalStorage()) ||
-        (accessTokenFromUrl && accessTokenFromUrl === getAccessTokenFromLocalStorage()))
+      ((refreshTokenFromUrl &&
+        refreshTokenFromUrl === getRefreshTokenFromLocalStorage()) ||
+        (accessTokenFromUrl &&
+          accessTokenFromUrl === getAccessTokenFromLocalStorage()))
     ) {
       ref.current = mutateAsync
       mutateAsync().then((res) => {
         setTimeout(() => {
           ref.current = null
         }, 1000)
-        setRole(undefined)
+        setRole()
+        disconnectSocket()
         router.push('/login')
       })
     } else {
       router.push('/')
     }
-  }, [mutateAsync, router, refreshTokenFromUrl, accessTokenFromUrl, setRole])
-  return <div>Logout ...</div>
+  }, [
+    mutateAsync,
+    router,
+    refreshTokenFromUrl,
+    accessTokenFromUrl,
+    setRole,
+    disconnectSocket,
+  ])
+  return <div>Log out....</div>
 }
-
 export default function LogoutPage() {
   return (
     <Suspense>

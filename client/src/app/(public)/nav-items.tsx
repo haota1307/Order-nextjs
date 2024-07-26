@@ -1,4 +1,11 @@
 'use client'
+import { useAppContext } from '@/components/app-provider'
+import { Role } from '@/constants/type'
+import { cn, handleErrorApi } from '@/lib/utils'
+import { useLogoutMutation } from '@/queries/useAuth'
+import { RoleType } from '@/types/jwt.types'
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -10,13 +17,6 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog'
-import { useAppContext } from '@/components/app-provider'
-import { Role } from '@/constants/type'
-import { cn, handleErrorApi } from '@/lib/utils'
-import { useLogoutMutation } from '@/queries/useAuth'
-import { RoleType } from '@/types/jwt.types'
-import Link from 'next/link'
-import { useRouter } from 'next/navigation'
 
 const menuItems: {
   title: string
@@ -39,14 +39,14 @@ const menuItems: {
     role: [Role.Guest],
   },
   {
-    title: 'Quản lý',
-    href: '/manage/dashboard',
-    role: [Role.Owner, Role.Employee],
-  },
-  {
     title: 'Đăng nhập',
     href: '/login',
     hideWhenLogin: true,
+  },
+  {
+    title: 'Quản lý',
+    href: '/manage/dashboard',
+    role: [Role.Owner, Role.Employee],
   },
 ]
 
@@ -55,7 +55,7 @@ const menuItems: {
 // Nhưng ngay sau đó thì client render ra là Món ăn, Đơn hàng, Quản lý do đã check được trạng thái đăng nhập
 
 export default function NavItems({ className }: { className?: string }) {
-  const { role, setRole } = useAppContext()
+  const { role, setRole, disconnectSocket } = useAppContext()
   const logoutMutation = useLogoutMutation()
   const router = useRouter()
 
@@ -64,6 +64,7 @@ export default function NavItems({ className }: { className?: string }) {
     try {
       await logoutMutation.mutateAsync()
       setRole()
+      disconnectSocket()
       router.push('/')
     } catch (error: any) {
       handleErrorApi({
@@ -74,11 +75,12 @@ export default function NavItems({ className }: { className?: string }) {
   return (
     <>
       {menuItems.map((item) => {
-        // 1. Trường hợp đăng nhập thì chỉ hiển thị menu đăng nhập
+        // Trường hợp đăng nhập thì chỉ hiển thị menu đăng nhập
         const isAuth = item.role && role && item.role.includes(role)
-        // 2. Trường hợp menu item có thể hiển thị dù cho đã đăng nhập hay chưa
+        // Trường hợp menu item có thể hiển thị dù cho đã đăng nhập hay chưa
         const canShow =
-          (item.role === undefined && !item.hideWhenLogin) || (!role && item.hideWhenLogin)
+          (item.role === undefined && !item.hideWhenLogin) ||
+          (!role && item.hideWhenLogin)
         if (isAuth || canShow) {
           return (
             <Link href={item.href} key={item.href} className={className}>
