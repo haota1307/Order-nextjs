@@ -1,6 +1,8 @@
 import prisma from '@/database'
 import { Cron } from 'croner'
 
+// Cron pattern for every hour
+
 const autoRemoveRefreshTokenJob = () => {
   Cron('@hourly', async () => {
     try {
