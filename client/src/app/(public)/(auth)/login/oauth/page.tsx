@@ -1,6 +1,6 @@
 'use client'
 
-import { useAppContext } from '@/components/app-provider'
+import { useAppStore } from '@/components/app-provider'
 import { toast } from '@/components/ui/use-toast'
 import { decodeToken, generateSocketInstace } from '@/lib/utils'
 import { useSetTokenToCookieMutation } from '@/queries/useAuth'
@@ -8,18 +8,16 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useRef } from 'react'
 
 export default function OAuthPage() {
-  const { setRole, setSocket } = useAppContext()
   const { mutateAsync } = useSetTokenToCookieMutation()
-
   const router = useRouter()
-  const searchParams = useSearchParams()
+  const count = useRef(0)
+  const setSocket = useAppStore((state) => state.setSocket)
+  const setRole = useAppStore((state) => state.setRole)
 
+  const searchParams = useSearchParams()
   const accessToken = searchParams.get('accessToken')
   const refreshToken = searchParams.get('refreshToken')
   const message = searchParams.get('message')
-
-  const count = useRef(0)
-
   useEffect(() => {
     if (accessToken && refreshToken) {
       if (count.current === 0) {
@@ -32,9 +30,7 @@ export default function OAuthPage() {
           })
           .catch((e) => {
             toast({
-              title: 'Đăng nhập thất bại',
               description: e.message || 'Có lỗi xảy ra',
-              variant: 'destructive',
             })
           })
         count.current++
@@ -43,12 +39,9 @@ export default function OAuthPage() {
       if (count.current === 0) {
         setTimeout(() => {
           toast({
-            title: 'Đăng nhập thất bại',
             description: message || 'Có lỗi xảy ra',
-            variant: 'destructive',
           })
         })
-        router.push('/')
         count.current++
       }
     }
@@ -61,5 +54,5 @@ export default function OAuthPage() {
     message,
     mutateAsync,
   ])
-  return <div />
+  return null
 }

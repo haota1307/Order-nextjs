@@ -18,7 +18,7 @@ import { toast } from '@/components/ui/use-toast'
 import { generateSocketInstace, handleErrorApi } from '@/lib/utils'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useEffect } from 'react'
-import { useAppContext } from '@/components/app-provider'
+import { useAppStore } from '@/components/app-provider'
 import envConfig from '@/config'
 import Link from 'next/link'
 
@@ -39,12 +39,13 @@ const getOauthGoogleUrl = () => {
   return `${rootUrl}?${qs.toString()}`
 }
 const googleOauthUrl = getOauthGoogleUrl()
-
 export default function LoginForm() {
   const loginMutation = useLoginMutation()
   const searchParams = useSearchParams()
   const clearTokens = searchParams.get('clearTokens')
-  const { setRole, setSocket } = useAppContext()
+  const setSocket = useAppStore((state) => state.setSocket)
+  const setRole = useAppStore((state) => state.setRole)
+
   const form = useForm<LoginBodyType>({
     resolver: zodResolver(LoginBody),
     defaultValues: {
