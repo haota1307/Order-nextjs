@@ -17,7 +17,8 @@ const authApiRequest = {
   // Server login
   sLogin: (body: LoginBodyType) => http.post<LoginResType>('/auth/login', body),
   // Client login (route handler - next server)
-  login: (body: LoginBodyType) => http.post<LoginResType>('/api/auth/login', body, { baseUrl: '' }),
+  login: (body: LoginBodyType) =>
+    http.post<LoginResType>('/api/auth/login', body, { baseUrl: '' }),
   sLogout: (body: LogoutBodyType & { accessToken: string }) =>
     http.post(
       '/auth/logout',
@@ -36,13 +37,19 @@ const authApiRequest = {
     if (this.refreshTokenRequest) {
       return this.refreshTokenRequest
     }
-    this.refreshTokenRequest = http.post<RefreshTokenResType>('/api/auth/refresh-token', null, {
-      baseUrl: '',
-    })
+    this.refreshTokenRequest = http.post<RefreshTokenResType>(
+      '/api/auth/refresh-token',
+      null,
+      {
+        baseUrl: '',
+      }
+    )
     const result = await this.refreshTokenRequest
     this.refreshTokenRequest = null
     return result
   },
+  setTokenToCookie: (body: { accessToken: string; refreshToken: string }) =>
+    http.post('/api/auth/token', body, { baseUrl: '' }),
 }
 
 export default authApiRequest
