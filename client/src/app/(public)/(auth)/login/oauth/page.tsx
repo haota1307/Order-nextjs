@@ -40,12 +40,17 @@ export default function OAuthPage() {
         count.current++
       }
     } else {
-      console.log(message)
-      toast({
-        title: 'Đăng nhập thất bại',
-        description: message || 'Có lỗi xảy ra',
-        variant: 'destructive',
-      })
+      if (count.current === 0) {
+        setTimeout(() => {
+          toast({
+            title: 'Đăng nhập thất bại',
+            description: message || 'Có lỗi xảy ra',
+            variant: 'destructive',
+          })
+        })
+        router.push('/')
+        count.current++
+      }
     }
   }, [
     accessToken,
