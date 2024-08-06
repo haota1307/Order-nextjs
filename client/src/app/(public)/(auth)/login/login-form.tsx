@@ -21,6 +21,7 @@ import { useEffect } from 'react'
 import { useAppStore } from '@/components/app-provider'
 import envConfig from '@/config'
 import Link from 'next/link'
+import { useTranslations } from 'next-intl'
 
 const getOauthGoogleUrl = () => {
   const rootUrl = 'https://accounts.google.com/o/oauth2/v2/auth'
@@ -40,6 +41,7 @@ const getOauthGoogleUrl = () => {
 }
 const googleOauthUrl = getOauthGoogleUrl()
 export default function LoginForm() {
+  const t = useTranslations('Login')
   const loginMutation = useLoginMutation()
   const searchParams = useSearchParams()
   const clearTokens = searchParams.get('clearTokens')
@@ -60,6 +62,8 @@ export default function LoginForm() {
     }
   }, [clearTokens, setRole])
   const onSubmit = async (data: LoginBodyType) => {
+    // Khi nhấn submit thì React hook form sẽ validate cái form bằng zod schema ở client trước
+    // Nếu không pass qua vòng này thì sẽ không gọi api
     if (loginMutation.isPending) return
     try {
       const result = await loginMutation.mutateAsync(data)
@@ -80,7 +84,7 @@ export default function LoginForm() {
   return (
     <Card className='mx-auto max-w-sm'>
       <CardHeader>
-        <CardTitle className='text-2xl'>Đăng nhập</CardTitle>
+        <CardTitle className='text-2xl'>{t('title')}</CardTitle>
         <CardDescription>
           Nhập email và mật khẩu của bạn để đăng nhập vào hệ thống
         </CardDescription>

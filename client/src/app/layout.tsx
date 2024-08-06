@@ -32,7 +32,7 @@ export default async function RootLayout({
           fontSans.variable
         )}
       >
-        <NextIntlClientProvider>
+        <NextIntlClientProvider messages={messages}>
           <AppProvider>
             <ThemeProvider
               attribute='class'
