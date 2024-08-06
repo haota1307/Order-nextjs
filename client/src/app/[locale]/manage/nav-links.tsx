@@ -8,9 +8,8 @@ import {
   TooltipProvider,
 } from '@/components/ui/tooltip'
 import { cn } from '@/lib/utils'
+import { Link, usePathname } from '@/navigation'
 import { Package2, Settings } from 'lucide-react'
-import Link from 'next/link'
-import { usePathname } from 'next/navigation'
 
 export default function NavLinks() {
   const pathname = usePathname()

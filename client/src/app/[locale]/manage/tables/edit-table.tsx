@@ -11,8 +11,18 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
-import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form'
-import { getTableLink, getVietnameseTableStatus, handleErrorApi } from '@/lib/utils'
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormMessage,
+} from '@/components/ui/form'
+import {
+  getTableLink,
+  getVietnameseTableStatus,
+  handleErrorApi,
+} from '@/lib/utils'
 import {
   Select,
   SelectContent,
@@ -20,10 +30,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { UpdateTableBody, UpdateTableBodyType } from '@/schemaValidations/table.schema'
+import {
+  UpdateTableBody,
+  UpdateTableBodyType,
+} from '@/schemaValidations/table.schema'
 import { TableStatus, TableStatusValues } from '@/constants/type'
 import { Switch } from '@/components/ui/switch'
-import Link from 'next/link'
+import { Link } from '@/navigation'
 import { useEffect } from 'react'
 import { useGetTableQuery, useUpdateTableMutation } from '@/queries/useTable'
 import { toast } from '@/components/ui/use-toast'
@@ -54,7 +67,10 @@ export default function EditTable({
   const onSubmit = async (values: UpdateTableBodyType) => {
     if (updateTableMutation.isPending) return
     try {
-      let body: UpdateTableBodyType & { id: number } = { id: id as number, ...values }
+      let body: UpdateTableBodyType & { id: number } = {
+        id: id as number,
+        ...values,
+      }
       const result = await updateTableMutation.mutateAsync(body)
       toast({
         title: 'Thành công',
@@ -135,7 +151,12 @@ export default function EditTable({
                     <div className='grid grid-cols-4 items-center justify-items-start gap-4'>
                       <Label htmlFor='price'>Sức chứa (người)</Label>
                       <div className='col-span-3 w-full space-y-2'>
-                        <Input id='capacity' className='w-full' {...field} type='number' />
+                        <Input
+                          id='capacity'
+                          className='w-full'
+                          {...field}
+                          type='number'
+                        />
                         <FormMessage />
                       </div>
                     </div>

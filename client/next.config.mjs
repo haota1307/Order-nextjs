@@ -1,21 +1,20 @@
 import createNextIntlPlugin from 'next-intl/plugin'
 
-/** @type {import('next').NextConfig} */
-
 const withNextIntl = createNextIntlPlugin()
+/** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
     remotePatterns: [
       {
         hostname: 'localhost',
-        pathname: '/**',
+        pathname: '/**'
       },
       {
         hostname: 'via.placeholder.com',
-        pathname: '/**',
-      },
-    ],
-  },
+        pathname: '/**'
+      }
+    ]
+  }
 }
 
 export default withNextIntl(nextConfig)

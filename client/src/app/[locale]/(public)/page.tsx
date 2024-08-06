@@ -1,9 +1,9 @@
 import dishApiRequest from '@/apiRequests/dish'
 import { formatCurrency } from '@/lib/utils'
+import { Link } from '@/navigation'
 import { DishListResType } from '@/schemaValidations/dish.schema'
 import { getTranslations } from 'next-intl/server'
 import Image from 'next/image'
-import Link from 'next/link'
 
 export default async function Home() {
   const t = await getTranslations('HomePage')

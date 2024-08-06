@@ -9,12 +9,13 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
-import Link from 'next/link'
+
 import { useLogoutMutation } from '@/queries/useAuth'
 import { handleErrorApi } from '@/lib/utils'
-import { useRouter } from 'next/navigation'
+import { useRouter } from '@/navigation'
 import { useAccountMe } from '@/queries/useAccount'
 import { useAppStore } from '@/components/app-provider'
+import { Link } from '@/navigation'
 
 export default function DropdownAvatar() {
   const logoutMutation = useLogoutMutation()
