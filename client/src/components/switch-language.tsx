@@ -11,7 +11,7 @@ import {
 import { Locale, locales } from '@/config'
 import { useLocale, useTranslations } from 'next-intl'
 import { useSearchParams, useParams } from 'next/navigation'
-import { usePathname, useRouter } from '@/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 
 export function SwitchLanguage() {
   const t = useTranslations('SwitchLanguage')

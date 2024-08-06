@@ -39,12 +39,12 @@ export function middleware(request: NextRequest) {
   if (refreshToken) {
     // 2.1 Nếu cố tình vào trang login sẽ redirect về trang chủ
     if (unAuthPaths.some((path) => pathname.startsWith(path))) {
-      // return NextResponse.redirect(new URL('/', request.url))
-      response.headers.set(
-        'x-middleware-rewrite',
-        new URL('/', request.url).toString()
-      )
-      return response
+      return NextResponse.redirect(new URL('/', request.url))
+      // response.headers.set(
+      //   'x-middleware-rewrite',
+      //   new URL('/', request.url).toString()
+      // )
+      // return response
     }
 
     // 2.2 Nhưng access token lại hết hạn
