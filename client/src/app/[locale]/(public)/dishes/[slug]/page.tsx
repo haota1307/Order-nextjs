@@ -1,15 +1,15 @@
 import dishApiRequest from '@/apiRequests/dish'
-import DishDetail from '@/app/[locale]/(public)/dishes/[id]/dish-detail'
-import { formatCurrency, wrapServerApi } from '@/lib/utils'
-import Image from 'next/image'
+import DishDetail from '@/app/[locale]/(public)/dishes/[slug]/dish-detail'
+import { generateSlugUrl, getIdFromSlugUrl, wrapServerApi } from '@/lib/utils'
 
 export default async function DishPage({
-  params: { id },
+  params: { slug },
 }: {
   params: {
-    id: string
+    slug: string
   }
 }) {
+  const id = getIdFromSlugUrl(slug)
   const data = await wrapServerApi(() => dishApiRequest.getDish(Number(id)))
 
   const dish = data?.payload?.data
