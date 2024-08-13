@@ -2,17 +2,21 @@ import { Menu, Package2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
 import DarkModeToggle from '@/components/dark-mode-toggle'
-import { SwitchLanguage } from '@/components/switch-language'
 import NavItems from '@/app/[locale]/(public)/nav-items'
+import SwitchLanguage from '@/components/switch-language'
 import { Link } from '@/navigation'
+import { unstable_setRequestLocale } from 'next-intl/server'
 
 export default function Layout({
   children,
   modal,
+  params: { locale },
 }: Readonly<{
   children: React.ReactNode
   modal: React.ReactNode
+  params: { locale: string }
 }>) {
+  unstable_setRequestLocale(locale)
   return (
     <div className='flex min-h-screen w-full flex-col relative'>
       <header className='sticky z-20 top-0 flex h-16 items-center gap-4 border-b bg-background px-4 md:px-6'>
@@ -22,7 +26,7 @@ export default function Layout({
             className='flex items-center gap-2 text-lg font-semibold md:text-base'
           >
             <Package2 className='h-6 w-6' />
-            <span className='sr-only'>Hafo</span>
+            <span className='sr-only'>hafo</span>
           </Link>
           <NavItems className='text-muted-foreground transition-colors hover:text-foreground flex-shrink-0' />
         </nav>
@@ -44,8 +48,9 @@ export default function Layout({
                 className='flex items-center gap-2 text-lg font-semibold'
               >
                 <Package2 className='h-6 w-6' />
-                <span className='sr-only'>Hafo</span>
+                <span className='sr-only'>hafo</span>
               </Link>
+
               <NavItems className='text-muted-foreground transition-colors hover:text-foreground' />
             </nav>
           </SheetContent>
