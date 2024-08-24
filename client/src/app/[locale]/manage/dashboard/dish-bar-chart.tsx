@@ -70,7 +70,7 @@ export function DishBarChart({
           fill: colors[index] ?? colors[colors.length - 1],
         }
       }),
-    []
+    [dishIndicator]
   )
   return (
     <Card>
