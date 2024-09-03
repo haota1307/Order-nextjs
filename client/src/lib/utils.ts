@@ -3,17 +3,16 @@ import { EntityError } from '@/lib/http'
 import { type ClassValue, clsx } from 'clsx'
 import { UseFormSetError } from 'react-hook-form'
 import { twMerge } from 'tailwind-merge'
-import jwt from 'jsonwebtoken'
+import { jwtDecode } from 'jwt-decode'
 import authApiRequest from '@/apiRequests/auth'
 import { DishStatus, OrderStatus, Role, TableStatus } from '@/constants/type'
-import envConfig from '@/config'
+import envConfig, { defaultLocale } from '@/config'
 import { TokenPayload } from '@/types/jwt.types'
 import guestApiRequest from '@/apiRequests/guest'
 import { format } from 'date-fns'
 import { BookX, CookingPot, HandCoins, Loader, Truck } from 'lucide-react'
 import { io } from 'socket.io-client'
 import slugify from 'slugify'
-
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
@@ -28,7 +27,7 @@ export const normalizePath = (path: string) => {
 export const handleErrorApi = ({
   error,
   setError,
-  duration,
+  duration
 }: {
   error: any
   setError?: UseFormSetError<any>
@@ -38,7 +37,7 @@ export const handleErrorApi = ({
     error.payload.errors.forEach((item) => {
       setError(item.field, {
         type: 'server',
-        message: item.message,
+        message: item.message
       })
     })
   } else {
@@ -46,7 +45,7 @@ export const handleErrorApi = ({
       title: 'Lỗi',
       description: error?.payload?.message ?? 'Lỗi không xác định',
       variant: 'destructive',
-      duration: duration ?? 5000,
+      duration: duration ?? 5000
     })
   }
 }
@@ -117,7 +116,7 @@ export const checkAndRefreshToken = async (param?: {
 export const formatCurrency = (number: number) => {
   return new Intl.NumberFormat('vi-VN', {
     style: 'currency',
-    currency: 'VND',
+    currency: 'VND'
   }).format(number)
 }
 
@@ -166,18 +165,22 @@ export const getVietnameseTableStatus = (
 
 export const getTableLink = ({
   token,
-  tableNumber,
+  tableNumber
 }: {
   token: string
   tableNumber: number
 }) => {
   return (
-    envConfig.NEXT_PUBLIC_URL + '/tables/' + tableNumber + '?token=' + token
+    envConfig.NEXT_PUBLIC_URL +
+    `/${defaultLocale}/tables/` +
+    tableNumber +
+    '?token=' +
+    token
   )
 }
 
 export const decodeToken = (token: string) => {
-  return jwt.decode(token) as TokenPayload
+  return jwtDecode(token) as TokenPayload
 }
 
 export function removeAccents(str: string) {
@@ -208,8 +211,8 @@ export const formatDateTimeToTimeString = (date: string | Date) => {
 export const generateSocketInstace = (accessToken: string) => {
   return io(envConfig.NEXT_PUBLIC_API_ENDPOINT, {
     auth: {
-      Authorization: `Bearer ${accessToken}`,
-    },
+      Authorization: `Bearer ${accessToken}`
+    }
   })
 }
 
@@ -218,7 +221,7 @@ export const OrderStatusIcon = {
   [OrderStatus.Processing]: CookingPot,
   [OrderStatus.Rejected]: BookX,
   [OrderStatus.Delivered]: Truck,
-  [OrderStatus.Paid]: HandCoins,
+  [OrderStatus.Paid]: HandCoins
 }
 
 export const wrapServerApi = async <T>(fn: () => Promise<T>) => {

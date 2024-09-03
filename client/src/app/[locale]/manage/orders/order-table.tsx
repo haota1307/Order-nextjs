@@ -8,7 +8,7 @@ import {
   getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
-  useReactTable,
+  useReactTable
 } from '@tanstack/react-table'
 import { Input } from '@/components/ui/input'
 import {
@@ -17,12 +17,12 @@ import {
   TableCell,
   TableHead,
   TableHeader,
-  TableRow,
+  TableRow
 } from '@/components/ui/table'
 import {
   GetOrdersResType,
   PayGuestOrdersResType,
-  UpdateOrderResType,
+  UpdateOrderResType
 } from '@/schemaValidations/order.schema'
 import AddOrder from '@/app/[locale]/manage/orders/add-order'
 import EditOrder from '@/app/[locale]/manage/orders/edit-order'
@@ -42,12 +42,12 @@ import {
   Command,
   CommandGroup,
   CommandItem,
-  CommandList,
+  CommandList
 } from '@/components/ui/command'
 import {
   Popover,
   PopoverContent,
-  PopoverTrigger,
+  PopoverTrigger
 } from '@/components/ui/popover'
 import { endOfDay, format, startOfDay } from 'date-fns'
 import TableSkeleton from '@/app/[locale]/manage/orders/table-skeleton'
@@ -55,7 +55,7 @@ import { toast } from '@/components/ui/use-toast'
 import { GuestCreateOrdersResType } from '@/schemaValidations/guest.schema'
 import {
   useGetOrderListQuery,
-  useUpdateOrderMutation,
+  useUpdateOrderMutation
 } from '@/queries/useOrder'
 import { useTableListQuery } from '@/queries/useTable'
 import { useAppStore } from '@/components/app-provider'
@@ -69,7 +69,7 @@ export const OrderTableContext = createContext({
     status: (typeof OrderStatusValues)[number]
     quantity: number
   }) => {},
-  orderObjectByGuestId: {} as OrderObjectByGuestID,
+  orderObjectByGuestId: {} as OrderObjectByGuestID
 })
 
 export type StatusCountObject = Record<
@@ -98,7 +98,7 @@ export default function OrderTable() {
   const [orderIdEdit, setOrderIdEdit] = useState<number | undefined>()
   const orderListQuery = useGetOrderListQuery({
     fromDate,
-    toDate,
+    toDate
   })
   const refetchOrderList = orderListQuery.refetch
   const orderList = orderListQuery.data?.payload.data ?? []
@@ -111,7 +111,7 @@ export default function OrderTable() {
   const [rowSelection, setRowSelection] = useState({})
   const [pagination, setPagination] = useState({
     pageIndex, // Gía trị mặc định ban đầu, không có ý nghĩa khi data được fetch bất đồng bộ
-    pageSize: PAGE_SIZE, //default page size
+    pageSize: PAGE_SIZE //default page size
   })
   const updateOrderMutation = useUpdateOrderMutation()
   const { statics, orderObjectByGuestId, servingGuestByTableNumber } =
@@ -127,7 +127,7 @@ export default function OrderTable() {
       await updateOrderMutation.mutateAsync(body)
     } catch (error) {
       handleErrorApi({
-        error,
+        error
       })
     }
   }
@@ -150,14 +150,14 @@ export default function OrderTable() {
       columnFilters,
       columnVisibility,
       rowSelection,
-      pagination,
-    },
+      pagination
+    }
   })
 
   useEffect(() => {
     table.setPagination({
       pageIndex,
-      pageSize: PAGE_SIZE,
+      pageSize: PAGE_SIZE
     })
   }, [table, pageIndex])
 
@@ -189,12 +189,12 @@ export default function OrderTable() {
     function onUpdateOrder(data: UpdateOrderResType['data']) {
       const {
         dishSnapshot: { name },
-        quantity,
+        quantity
       } = data
       toast({
         description: `Món ${name} (SL: ${quantity}) vừa được cập nhật sang trạng thái "${getVietnameseOrderStatus(
           data.status
-        )}"`,
+        )}"`
       })
       refetch()
     }
@@ -202,7 +202,7 @@ export default function OrderTable() {
     function onNewOrder(data: GuestCreateOrdersResType['data']) {
       const { guest } = data[0]
       toast({
-        description: `${guest?.name} tại bàn ${guest?.tableNumber} vừa đặt ${data.length} đơn`,
+        description: `${guest?.name} tại bàn ${guest?.tableNumber} vừa đặt ${data.length} đơn`
       })
       refetch()
     }
@@ -210,7 +210,7 @@ export default function OrderTable() {
     function onPayment(data: PayGuestOrdersResType['data']) {
       const { guest } = data[0]
       toast({
-        description: `${guest?.name} tại bàn ${guest?.tableNumber} thanh toán thành công ${data.length} đơn`,
+        description: `${guest?.name} tại bàn ${guest?.tableNumber} thanh toán thành công ${data.length} đơn`
       })
       refetch()
     }
@@ -236,7 +236,7 @@ export default function OrderTable() {
         orderIdEdit,
         setOrderIdEdit,
         changeStatus,
-        orderObjectByGuestId,
+        orderObjectByGuestId
       }}
     >
       <div className='w-full'>

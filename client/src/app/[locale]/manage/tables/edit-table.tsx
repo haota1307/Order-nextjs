@@ -5,7 +5,7 @@ import {
   DialogContent,
   DialogFooter,
   DialogHeader,
-  DialogTitle,
+  DialogTitle
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -16,23 +16,23 @@ import {
   FormControl,
   FormField,
   FormItem,
-  FormMessage,
+  FormMessage
 } from '@/components/ui/form'
 import {
   getTableLink,
   getVietnameseTableStatus,
-  handleErrorApi,
+  handleErrorApi
 } from '@/lib/utils'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
+  SelectValue
 } from '@/components/ui/select'
 import {
   UpdateTableBody,
-  UpdateTableBodyType,
+  UpdateTableBodyType
 } from '@/schemaValidations/table.schema'
 import { TableStatus, TableStatusValues } from '@/constants/type'
 import { Switch } from '@/components/ui/switch'
@@ -45,7 +45,7 @@ import QRCodeTable from '@/components/qrcode-table'
 export default function EditTable({
   id,
   setId,
-  onSubmitSuccess,
+  onSubmitSuccess
 }: {
   id?: number | undefined
   setId: (value: number | undefined) => void
@@ -58,37 +58,10 @@ export default function EditTable({
     defaultValues: {
       capacity: 2,
       status: TableStatus.Hidden,
-      changeToken: false,
-    },
-  })
-
-  const { data } = useGetTableQuery({ enabled: Boolean(id), id: id as number })
-
-  const onSubmit = async (values: UpdateTableBodyType) => {
-    if (updateTableMutation.isPending) return
-    try {
-      let body: UpdateTableBodyType & { id: number } = {
-        id: id as number,
-        ...values,
-      }
-      const result = await updateTableMutation.mutateAsync(body)
-      toast({
-        title: 'Thành công',
-        description: result.payload.message,
-      })
-      reset()
-      onSubmitSuccess && onSubmitSuccess()
-    } catch (error) {
-      handleErrorApi({
-        error,
-        setError: form.setError,
-      })
+      changeToken: false
     }
-  }
-
-  const reset = () => {
-    setId(undefined)
-  }
+  })
+  const { data } = useGetTableQuery({ enabled: Boolean(id), id: id as number })
 
   useEffect(() => {
     if (data) {
@@ -96,10 +69,33 @@ export default function EditTable({
       form.reset({
         capacity,
         status,
-        changeToken: form.getValues('changeToken'),
+        changeToken: form.getValues('changeToken')
       })
     }
   }, [data, form])
+  const onSubmit = async (values: UpdateTableBodyType) => {
+    if (updateTableMutation.isPending) return
+    try {
+      let body: UpdateTableBodyType & { id: number } = {
+        id: id as number,
+        ...values
+      }
+      const result = await updateTableMutation.mutateAsync(body)
+      toast({
+        description: result.payload.message
+      })
+      reset()
+      onSubmitSuccess && onSubmitSuccess()
+    } catch (error) {
+      handleErrorApi({
+        error,
+        setError: form.setError
+      })
+    }
+  }
+  const reset = () => {
+    setId(undefined)
+  }
 
   return (
     <Dialog
@@ -124,8 +120,8 @@ export default function EditTable({
           <form
             noValidate
             className='grid auto-rows-max items-start gap-4 md:gap-8'
+            onSubmit={form.handleSubmit(onSubmit, console.log)}
             id='edit-table-form'
-            onSubmit={form.handleSubmit(onSubmit)}
           >
             <div className='grid gap-4 py-4'>
               <FormItem>
@@ -173,7 +169,6 @@ export default function EditTable({
                       <div className='col-span-3 w-full space-y-2'>
                         <Select
                           onValueChange={field.onChange}
-                          defaultValue={field.value}
                           value={field.value}
                         >
                           <FormControl>
@@ -239,14 +234,14 @@ export default function EditTable({
                       <Link
                         href={getTableLink({
                           token: data.payload.data.token,
-                          tableNumber: data.payload.data.number,
+                          tableNumber: data.payload.data.number
                         })}
                         target='_blank'
                         className='break-all'
                       >
                         {getTableLink({
                           token: data.payload.data.token,
-                          tableNumber: data.payload.data.number,
+                          tableNumber: data.payload.data.number
                         })}
                       </Link>
                     )}

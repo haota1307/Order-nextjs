@@ -8,14 +8,14 @@ import { Form, FormField, FormItem, FormMessage } from '@/components/ui/form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
   GuestLoginBody,
-  GuestLoginBodyType,
+  GuestLoginBodyType
 } from '@/schemaValidations/guest.schema'
-import { useRouter } from '@/navigation'
+import { useSearchParams, useParams } from 'next/navigation'
 import { useEffect } from 'react'
 import { useGuestLoginMutation } from '@/queries/useGuest'
 import { useAppStore } from '@/components/app-provider'
 import { generateSocketInstace, handleErrorApi } from '@/lib/utils'
-import { useParams, useSearchParams } from 'next/navigation'
+import { useRouter } from '@/navigation'
 
 export default function GuestLoginForm() {
   const setSocket = useAppStore((state) => state.setSocket)
@@ -31,8 +31,8 @@ export default function GuestLoginForm() {
     defaultValues: {
       name: '',
       token: token ?? '',
-      tableNumber,
-    },
+      tableNumber
+    }
   })
 
   useEffect(() => {
@@ -51,7 +51,7 @@ export default function GuestLoginForm() {
     } catch (error) {
       handleErrorApi({
         error,
-        setError: form.setError,
+        setError: form.setError
       })
     }
   }

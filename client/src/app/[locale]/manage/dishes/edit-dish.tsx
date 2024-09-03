@@ -6,7 +6,7 @@ import {
   DialogDescription,
   DialogFooter,
   DialogHeader,
-  DialogTitle,
+  DialogTitle
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -19,32 +19,32 @@ import {
   FormControl,
   FormField,
   FormItem,
-  FormMessage,
+  FormMessage
 } from '@/components/ui/form'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { toast } from '@/components/ui/use-toast'
 import { getVietnameseDishStatus, handleErrorApi } from '@/lib/utils'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
+  SelectValue
 } from '@/components/ui/select'
 import {
   UpdateDishBody,
-  UpdateDishBodyType,
+  UpdateDishBodyType
 } from '@/schemaValidations/dish.schema'
 import { DishStatus, DishStatusValues } from '@/constants/type'
 import { Textarea } from '@/components/ui/textarea'
 import { useUploadMediaMutation } from '@/queries/useMedia'
 import { useGetDishQuery, useUpdateDishMutation } from '@/queries/useDish'
+import { toast } from '@/components/ui/use-toast'
 import revalidateApiRequest from '@/apiRequests/revalidate'
 
 export default function EditDish({
   id,
   setId,
-  onSubmitSuccess,
+  onSubmitSuccess
 }: {
   id?: number | undefined
   setId: (value: number | undefined) => void
@@ -52,9 +52,9 @@ export default function EditDish({
 }) {
   const [file, setFile] = useState<File | null>(null)
   const imageInputRef = useRef<HTMLInputElement | null>(null)
-  const updateDishMutation = useUpdateDishMutation()
   const uploadMediaMutation = useUploadMediaMutation()
-  const { data } = useGetDishQuery({ id: id as number, enabled: Boolean(id) })
+  const updateDishMutation = useUpdateDishMutation()
+  const { data } = useGetDishQuery({ enabled: Boolean(id), id: id as number })
   const form = useForm<UpdateDishBodyType>({
     resolver: zodResolver(UpdateDishBody),
     defaultValues: {
@@ -62,11 +62,12 @@ export default function EditDish({
       description: '',
       price: 0,
       image: undefined,
-      status: DishStatus.Unavailable,
-    },
+      status: DishStatus.Unavailable
+    }
   })
   const image = form.watch('image')
   const name = form.watch('name')
+
   const previewAvatarFromFile = useMemo(() => {
     if (file) {
       return URL.createObjectURL(file)
@@ -74,12 +75,24 @@ export default function EditDish({
     return image
   }, [file, image])
 
+  useEffect(() => {
+    if (data) {
+      const { name, image, description, price, status } = data.payload.data
+      form.reset({
+        name,
+        image: image ?? undefined,
+        description,
+        price,
+        status
+      })
+    }
+  }, [data, form])
   const onSubmit = async (values: UpdateDishBodyType) => {
     if (updateDishMutation.isPending) return
     try {
       let body: UpdateDishBodyType & { id: number } = {
         id: id as number,
-        ...values,
+        ...values
       }
       if (file) {
         const formData = new FormData()
@@ -90,21 +103,20 @@ export default function EditDish({
         const imageUrl = uploadImageResult.payload.data
         body = {
           ...body,
-          image: imageUrl,
+          image: imageUrl
         }
       }
       const result = await updateDishMutation.mutateAsync(body)
       await revalidateApiRequest('dishes')
       toast({
-        title: 'Thành công',
-        description: result.payload.message,
+        description: result.payload.message
       })
       reset()
       onSubmitSuccess && onSubmitSuccess()
     } catch (error) {
       handleErrorApi({
         error,
-        setError: form.setError,
+        setError: form.setError
       })
     }
   }
@@ -113,19 +125,6 @@ export default function EditDish({
     setId(undefined)
     setFile(null)
   }
-
-  useEffect(() => {
-    if (data) {
-      const { name, description, image, price, status } = data.payload.data
-      form.reset({
-        name,
-        description,
-        image: image ?? undefined,
-        price,
-        status,
-      })
-    }
-  }, [data, form])
 
   return (
     <Dialog
@@ -140,7 +139,7 @@ export default function EditDish({
         <DialogHeader>
           <DialogTitle>Cập nhật món ăn</DialogTitle>
           <DialogDescription>
-            Các trường sau đây là bắt buộc: Tên, ảnh
+            Các trường sau đây là bắ buộc: Tên, ảnh
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -148,8 +147,7 @@ export default function EditDish({
             noValidate
             className='grid auto-rows-max items-start gap-4 md:gap-8'
             id='edit-dish-form'
-            onSubmit={form.handleSubmit(onSubmit)}
-            onReset={reset}
+            onSubmit={form.handleSubmit(onSubmit, console.log)}
           >
             <div className='grid gap-4 py-4'>
               <FormField

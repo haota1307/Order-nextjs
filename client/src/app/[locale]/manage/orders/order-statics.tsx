@@ -6,7 +6,7 @@ import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
-  TooltipTrigger,
+  TooltipTrigger
 } from '@/components/ui/tooltip'
 import { OrderStatus, OrderStatusValues } from '@/constants/type'
 import { TableListResType } from '@/schemaValidations/table.schema'
@@ -14,20 +14,48 @@ import { Badge } from '@/components/ui/badge'
 import {
   ServingGuestByTableNumber,
   Statics,
-  StatusCountObject,
+  StatusCountObject
 } from '@/app/[locale]/manage/orders/order-table'
 import {
   Dialog,
   DialogContent,
   DialogHeader,
-  DialogTitle,
+  DialogTitle
 } from '@/components/ui/dialog'
 import OrderGuestDetail from '@/app/[locale]/manage/orders/order-guest-detail'
 
+// Ví dụ:
+// const statics: Statics = {
+//   status: {
+//     Pending: 1,
+//     Processing: 2,
+//     Delivered: 3,
+//     Paid: 5,
+//     Rejected: 0
+//   },
+//   table: {
+//     1: { // Bàn số 1
+//       20: { // Guest 20
+//         Pending: 1,
+//         Processing: 2,
+//         Delivered: 3,
+//         Paid: 5,
+//         Rejected: 0
+//       },
+//       21: { // Guest 21
+//         Pending: 1,
+//         Processing: 2,
+//         Delivered: 3,
+//         Paid: 5,
+//         Rejected: 0
+//       }
+//     }
+//   }
+// }
 export default function OrderStatics({
   statics,
   tableList,
-  servingGuestByTableNumber,
+  servingGuestByTableNumber
 }: {
   statics: Statics
   tableList: TableListResType['data']
@@ -62,7 +90,9 @@ export default function OrderStatics({
                     <OrderGuestDetail
                       guest={orders[0].guest}
                       orders={orders}
-                      onPaySuccess={() => setSelectedTableNumber(0)}
+                      onPaySuccess={() => {
+                        setSelectedTableNumber(0)
+                      }}
                     />
                     {index !== Object.keys(selectedServingGuest).length - 1 && (
                       <Separator className='my-5' />
@@ -84,7 +114,7 @@ export default function OrderStatics({
             Processing: 0,
             Delivered: 0,
             Paid: 0,
-            Rejected: 0,
+            Rejected: 0
           }
           const servingGuestCount = Object.values(
             servingGuestByTableNumber[tableNumber] ?? []
@@ -96,7 +126,7 @@ export default function OrderStatics({
                 [
                   guestStatics.Pending,
                   guestStatics.Processing,
-                  guestStatics.Delivered,
+                  guestStatics.Delivered
                 ].some((status) => status !== 0 && status !== undefined)
               ) {
                 isEmptyTable = false
@@ -108,7 +138,7 @@ export default function OrderStatics({
                 Delivered:
                   countObject.Delivered + (guestStatics.Delivered ?? 0),
                 Paid: countObject.Paid + (guestStatics.Paid ?? 0),
-                Rejected: countObject.Rejected + (guestStatics.Rejected ?? 0),
+                Rejected: countObject.Rejected + (guestStatics.Rejected ?? 0)
               }
             }
           }
@@ -119,7 +149,7 @@ export default function OrderStatics({
                 'text-sm flex items-stretch gap-2 border p-2 rounded-md',
                 {
                   'bg-secondary': !isEmptyTable,
-                  'border-transparent': !isEmptyTable,
+                  'border-transparent': !isEmptyTable
                 }
               )}
               onClick={() => {
@@ -147,7 +177,7 @@ export default function OrderStatics({
               <Separator
                 orientation='vertical'
                 className={cn('flex-shrink-0 flex-grow h-auto', {
-                  'bg-muted-foreground': !isEmptyTable,
+                  'bg-muted-foreground': !isEmptyTable
                 })}
               />
               {isEmptyTable && (

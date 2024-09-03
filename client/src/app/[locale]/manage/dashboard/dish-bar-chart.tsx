@@ -9,13 +9,13 @@ import {
   CardDescription,
   CardFooter,
   CardHeader,
-  CardTitle,
+  CardTitle
 } from '@/components/ui/card'
 import {
   ChartConfig,
   ChartContainer,
   ChartTooltip,
-  ChartTooltipContent,
+  ChartTooltipContent
 } from '@/components/ui/chart'
 import { DashboardIndicatorResType } from '@/schemaValidations/indicator.schema'
 import { useMemo } from 'react'
@@ -25,52 +25,52 @@ const colors = [
   'var(--color-safari)',
   'var(--color-firefox)',
   'var(--color-edge)',
-  'var(--color-other)',
+  'var(--color-other)'
 ]
 
 const chartConfig = {
   visitors: {
-    label: 'Visitors',
+    label: 'Visitors'
   },
   chrome: {
     label: 'Chrome',
-    color: 'hsl(var(--chart-1))',
+    color: 'hsl(var(--chart-1))'
   },
   safari: {
     label: 'Safari',
-    color: 'hsl(var(--chart-2))',
+    color: 'hsl(var(--chart-2))'
   },
   firefox: {
     label: 'Firefox',
-    color: 'hsl(var(--chart-3))',
+    color: 'hsl(var(--chart-3))'
   },
   edge: {
     label: 'Edge',
-    color: 'hsl(var(--chart-4))',
+    color: 'hsl(var(--chart-4))'
   },
   other: {
     label: 'Other',
-    color: 'hsl(var(--chart-5))',
-  },
+    color: 'hsl(var(--chart-5))'
+  }
 } satisfies ChartConfig
 
 export function DishBarChart({
-  dishIndicator,
+  chartData
 }: {
-  dishIndicator: Pick<
+  chartData: Pick<
     DashboardIndicatorResType['data']['dishIndicator'][0],
     'name' | 'successOrders'
   >[]
 }) {
-  const chartDataColors = useMemo(
+  const chartDateColors = useMemo(
     () =>
-      dishIndicator.map((data, index) => {
+      chartData.map((data, index) => {
         return {
           ...data,
-          fill: colors[index] ?? colors[colors.length - 1],
+          fill: colors[index] ?? colors[colors.length - 1]
         }
       }),
-    [dishIndicator]
+    [chartData]
   )
   return (
     <Card>
@@ -82,10 +82,10 @@ export function DishBarChart({
         <ChartContainer config={chartConfig}>
           <BarChart
             accessibilityLayer
-            data={chartDataColors}
+            data={chartDateColors}
             layout='vertical'
             margin={{
-              left: 0,
+              left: 0
             }}
           >
             <YAxis
@@ -96,6 +96,8 @@ export function DishBarChart({
               axisLine={false}
               tickFormatter={(value) => {
                 return value
+
+                // return chartConfig[value as keyof typeof chartConfig]?.label
               }}
             />
             <XAxis dataKey='successOrders' type='number' hide />
@@ -109,7 +111,14 @@ export function DishBarChart({
           </BarChart>
         </ChartContainer>
       </CardContent>
-      <CardFooter className='flex-col items-start gap-2 text-sm'></CardFooter>
+      <CardFooter className='flex-col items-start gap-2 text-sm'>
+        {/* <div className='flex gap-2 font-medium leading-none'>
+          Trending up by 5.2% this month <TrendingUp className='h-4 w-4' />
+        </div> */}
+        {/* <div className='leading-none text-muted-foreground'>
+          Showing total visitors for the last 6 months
+        </div> */}
+      </CardFooter>
     </Card>
   )
 }

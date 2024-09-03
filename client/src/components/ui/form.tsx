@@ -7,7 +7,7 @@ import {
   FieldPath,
   FieldValues,
   FormProvider,
-  useFormContext,
+  useFormContext
 } from 'react-hook-form'
 
 import { cn } from '@/lib/utils'
@@ -58,7 +58,7 @@ const useFormField = () => {
     formItemId: `${id}-form-item`,
     formDescriptionId: `${id}-form-item-description`,
     formMessageId: `${id}-form-item-message`,
-    ...fieldState,
+    ...fieldState
   }
 }
 
@@ -146,13 +146,11 @@ const FormMessage = React.forwardRef<
 >(({ className, children, ...props }, ref) => {
   const { error, formMessageId } = useFormField()
   // const body = error ? String(error?.message) : children
-
   const body = children
     ? children
     : error?.message
-    ? String(error.message)
+    ? String(error?.message)
     : null
-
   if (!body) {
     return null
   }
@@ -178,5 +176,5 @@ export {
   FormControl,
   FormDescription,
   FormMessage,
-  FormField,
+  FormField
 }

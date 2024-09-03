@@ -6,7 +6,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
+  DialogTrigger
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -19,13 +19,13 @@ import {
   FormControl,
   FormField,
   FormItem,
-  FormMessage,
+  FormMessage
 } from '@/components/ui/form'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { getVietnameseDishStatus, handleErrorApi } from '@/lib/utils'
 import {
   CreateDishBody,
-  CreateDishBodyType,
+  CreateDishBodyType
 } from '@/schemaValidations/dish.schema'
 import { DishStatus, DishStatusValues } from '@/constants/type'
 import {
@@ -33,7 +33,7 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
+  SelectValue
 } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
 import { useAddDishMutation } from '@/queries/useDish'
@@ -54,8 +54,8 @@ export default function AddDish() {
       description: '',
       price: 0,
       image: undefined,
-      status: DishStatus.Unavailable,
-    },
+      status: DishStatus.Unavailable
+    }
   })
   const image = form.watch('image')
   const name = form.watch('name')
@@ -65,12 +65,10 @@ export default function AddDish() {
     }
     return image
   }, [file, image])
-
   const reset = () => {
     form.reset()
     setFile(null)
   }
-
   const onSubmit = async (values: CreateDishBodyType) => {
     if (addDishMutation.isPending) return
     try {
@@ -84,21 +82,20 @@ export default function AddDish() {
         const imageUrl = uploadImageResult.payload.data
         body = {
           ...values,
-          image: imageUrl,
+          image: imageUrl
         }
       }
       const result = await addDishMutation.mutateAsync(body)
       await revalidateApiRequest('dishes')
       toast({
-        title: 'Thành công',
-        description: result.payload.message,
+        description: result.payload.message
       })
       reset()
       setOpen(false)
     } catch (error) {
       handleErrorApi({
         error,
-        setError: form.setError,
+        setError: form.setError
       })
     }
   }
@@ -129,7 +126,9 @@ export default function AddDish() {
             noValidate
             className='grid auto-rows-max items-start gap-4 md:gap-8'
             id='add-dish-form'
-            onSubmit={form.handleSubmit(onSubmit)}
+            onSubmit={form.handleSubmit(onSubmit, (e) => {
+              console.log(e)
+            })}
             onReset={reset}
           >
             <div className='grid gap-4 py-4'>
@@ -141,7 +140,7 @@ export default function AddDish() {
                     <div className='flex gap-2 items-start justify-start'>
                       <Avatar className='aspect-square w-[100px] h-[100px] rounded-md object-cover'>
                         <AvatarImage src={previewAvatarFromFile} />
-                        <AvatarFallback className='rounded-none text-center'>
+                        <AvatarFallback className='rounded-none'>
                           {name || 'Ảnh món ăn'}
                         </AvatarFallback>
                       </Avatar>
@@ -166,7 +165,6 @@ export default function AddDish() {
                         <Upload className='h-4 w-4 text-muted-foreground' />
                         <span className='sr-only'>Upload</span>
                       </button>
-                      <FormMessage className='mx-10 my-auto' />
                     </div>
                   </FormItem>
                 )}

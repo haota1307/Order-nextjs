@@ -6,7 +6,7 @@ import {
   PaginationItem,
   PaginationLink,
   PaginationNext,
-  PaginationPrevious,
+  PaginationPrevious
 } from '@/components/ui/pagination'
 import { cn } from '@/lib/utils'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
@@ -45,7 +45,7 @@ export default function AutoPagination({
   pageSize,
   pathname = '/',
   isLink = true,
-  onClick = (pageNumber) => {},
+  onClick = (pageNumber) => {}
 }: Props) {
   const renderPagination = () => {
     let dotAfter = false
@@ -107,8 +107,8 @@ export default function AutoPagination({
                 href={{
                   pathname,
                   query: {
-                    page: pageNumber,
-                  },
+                    page: pageNumber
+                  }
                 }}
                 isActive={pageNumber === page}
               >
@@ -139,11 +139,11 @@ export default function AutoPagination({
               href={{
                 pathname,
                 query: {
-                  page: page - 1,
-                },
+                  page: page - 1
+                }
               }}
               className={cn({
-                'cursor-not-allowed': page === 1,
+                'cursor-not-allowed': page === 1
               })}
               onClick={(e) => {
                 if (page === 1) {
@@ -173,11 +173,11 @@ export default function AutoPagination({
               href={{
                 pathname,
                 query: {
-                  page: page + 1,
-                },
+                  page: page + 1
+                }
               }}
               className={cn({
-                'cursor-not-allowed': page === pageSize,
+                'cursor-not-allowed': page === pageSize
               })}
               onClick={(e) => {
                 if (page === pageSize) {

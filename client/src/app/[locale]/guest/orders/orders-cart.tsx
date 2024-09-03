@@ -8,7 +8,7 @@ import { formatCurrency, getVietnameseOrderStatus } from '@/lib/utils'
 import { useGuestGetOrderListQuery } from '@/queries/useGuest'
 import {
   PayGuestOrdersResType,
-  UpdateOrderResType,
+  UpdateOrderResType
 } from '@/schemaValidations/order.schema'
 import Image from 'next/image'
 import { useEffect, useMemo } from 'react'
@@ -31,8 +31,8 @@ export default function OrdersCart() {
               price:
                 result.waitingForPaying.price +
                 order.dishSnapshot.price * order.quantity,
-              quantity: result.waitingForPaying.quantity + order.quantity,
-            },
+              quantity: result.waitingForPaying.quantity + order.quantity
+            }
           }
         }
         if (order.status === OrderStatus.Paid) {
@@ -41,8 +41,8 @@ export default function OrdersCart() {
             paid: {
               price:
                 result.paid.price + order.dishSnapshot.price * order.quantity,
-              quantity: result.paid.quantity + order.quantity,
-            },
+              quantity: result.paid.quantity + order.quantity
+            }
           }
         }
         return result
@@ -50,12 +50,12 @@ export default function OrdersCart() {
       {
         waitingForPaying: {
           price: 0,
-          quantity: 0,
+          quantity: 0
         },
         paid: {
           price: 0,
-          quantity: 0,
-        },
+          quantity: 0
+        }
       }
     )
   }, [orders])
@@ -76,12 +76,12 @@ export default function OrdersCart() {
     function onUpdateOrder(data: UpdateOrderResType['data']) {
       const {
         dishSnapshot: { name },
-        quantity,
+        quantity
       } = data
       toast({
         description: `Món ${name} (SL: ${quantity}) vừa được cập nhật sang trạng thái "${getVietnameseOrderStatus(
           data.status
-        )}"`,
+        )}"`
       })
       refetch()
     }
@@ -89,7 +89,7 @@ export default function OrdersCart() {
     function onPayment(data: PayGuestOrdersResType['data']) {
       const { guest } = data[0]
       toast({
-        description: `${guest?.name} tại bàn ${guest?.tableNumber} thanh toán thành công ${data.length} đơn`,
+        description: `${guest?.name} tại bàn ${guest?.tableNumber} thanh toán thành công ${data.length} đơn`
       })
       refetch()
     }

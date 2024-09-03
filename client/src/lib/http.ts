@@ -4,11 +4,11 @@ import {
   normalizePath,
   removeTokensFromLocalStorage,
   setAccessTokenToLocalStorage,
-  setRefreshTokenToLocalStorage,
+  setRefreshTokenToLocalStorage
 } from '@/lib/utils'
 import { LoginResType } from '@/schemaValidations/auth.schema'
 import { redirect } from '@/navigation'
-
+import Cookies from 'js-cookie'
 type CustomOptions = Omit<RequestInit, 'method'> & {
   baseUrl?: string | undefined
 }
@@ -33,7 +33,7 @@ export class HttpError extends Error {
   constructor({
     status,
     payload,
-    message = 'Lỗi HTTP',
+    message = 'Lỗi HTTP'
   }: {
     status: number
     payload: any
@@ -50,7 +50,7 @@ export class EntityError extends HttpError {
   payload: EntityErrorPayload
   constructor({
     status,
-    payload,
+    payload
   }: {
     status: typeof ENTITY_ERROR_STATUS
     payload: EntityErrorPayload
@@ -80,7 +80,7 @@ const request = async <Response>(
     body instanceof FormData
       ? {}
       : {
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/json'
         }
   if (isClient) {
     const accessToken = getAccessTokenFromLocalStorage()
@@ -101,16 +101,17 @@ const request = async <Response>(
     ...options,
     headers: {
       ...baseHeaders,
-      ...options?.headers,
+      ...options?.headers
     } as any,
     body,
-    method,
+    method
   })
   const payload: Response = await res.json()
   const data = {
     status: res.status,
-    payload,
+    payload
   }
+
   // Interceptor là nời chúng ta xử lý request và response trước khi trả về cho phía component
   if (!res.ok) {
     if (res.status === ENTITY_ERROR_STATUS) {
@@ -122,13 +123,14 @@ const request = async <Response>(
       )
     } else if (res.status === AUTHENTICATION_ERROR_STATUS) {
       if (isClient) {
+        const locale = Cookies.get('NEXT_LOCALE')
         if (!clientLogoutRequest) {
           clientLogoutRequest = fetch('/api/auth/logout', {
             method: 'POST',
             body: null, // Logout mình sẽ cho phép luôn luôn thành công
             headers: {
-              ...baseHeaders,
-            } as any,
+              ...baseHeaders
+            } as any
           })
           try {
             await clientLogoutRequest
@@ -140,7 +142,7 @@ const request = async <Response>(
             // Nếu không không được xử lý đúng cách
             // Vì nếu rơi vào trường hợp tại trang Login, chúng ta có gọi các API cần access token
             // Mà access token đã bị xóa thì nó lại nhảy vào đây, và cứ thế nó sẽ bị lặp
-            location.href = '/login'
+            location.href = `/${locale}/login`
           }
         }
       } else {
@@ -149,7 +151,7 @@ const request = async <Response>(
         const accessToken = (options?.headers as any)?.Authorization.split(
           'Bearer '
         )[1]
-        redirect(`/logout?accessToken=${accessToken}`)
+        redirect(`/login?accessToken=${accessToken}`)
       }
     } else {
       throw new HttpError(data)
@@ -172,7 +174,7 @@ const request = async <Response>(
     } else if (
       ['api/auth/logout', 'api/guest/auth/logout'].includes(normalizeUrl)
     ) {
-      removeTokensFromLocalStorage
+      removeTokensFromLocalStorage()
     }
   }
   return data
@@ -204,7 +206,7 @@ const http = {
     options?: Omit<CustomOptions, 'body'> | undefined
   ) {
     return request<Response>('DELETE', url, { ...options })
-  },
+  }
 }
 
 export default http

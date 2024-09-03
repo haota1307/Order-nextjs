@@ -6,11 +6,9 @@ import {
 import queryString from 'query-string'
 
 const indicatorApiRequest = {
-  getDashboardIndicators: async (
-    queryParams: DashboardIndicatorQueryParamsType
-  ) =>
+  getDashboardIndicators: (queryParams: DashboardIndicatorQueryParamsType) =>
     http.get<DashboardIndicatorResType>(
-      'indicators/dashboard?' +
+      '/indicators/dashboard?' +
         queryString.stringify({
           fromDate: queryParams.fromDate?.toISOString(),
           toDate: queryParams.toDate?.toISOString(),

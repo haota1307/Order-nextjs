@@ -32,6 +32,6 @@ export const useSearchParamsLoader = () => {
     useState<ReadonlyURLSearchParams | null>(null)
   return {
     searchParams,
-    setSearchParams,
+    setSearchParams
   }
 }

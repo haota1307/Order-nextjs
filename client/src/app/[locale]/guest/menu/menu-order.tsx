@@ -7,8 +7,8 @@ import Quantity from '@/app/[locale]/guest/menu/quantity'
 import { useMemo, useState } from 'react'
 import { GuestCreateOrdersBodyType } from '@/schemaValidations/guest.schema'
 import { useGuestOrderMutation } from '@/queries/useGuest'
-import { useRouter } from '@/navigation'
 import { DishStatus } from '@/constants/type'
+import { useRouter } from '@/navigation'
 
 export default function MenuOrder() {
   const { data } = useDishListQuery()
@@ -46,7 +46,7 @@ export default function MenuOrder() {
       router.push(`/guest/orders`)
     } catch (error) {
       handleErrorApi({
-        error,
+        error
       })
     }
   }
@@ -58,12 +58,12 @@ export default function MenuOrder() {
           <div
             key={dish.id}
             className={cn('flex gap-4', {
-              'pointer-events-none': dish.status === DishStatus.Unavailable,
+              'pointer-events-none': dish.status === DishStatus.Unavailable
             })}
           >
             <div className='flex-shrink-0 relative'>
               {dish.status === DishStatus.Unavailable && (
-                <span className='absolute inset-0 flex items-center justify-center text-sm text-red-500'>
+                <span className='absolute inset-0 flex items-center justify-center text-sm'>
                   Hết hàng
                 </span>
               )}

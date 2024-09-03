@@ -11,15 +11,13 @@ import { useDashboardIndicator } from '@/queries/useIndicator'
 
 const initFromDate = startOfDay(new Date())
 const initToDate = endOfDay(new Date())
-
 export default function DashboardMain() {
   const [fromDate, setFromDate] = useState(initFromDate)
   const [toDate, setToDate] = useState(initToDate)
   const { data } = useDashboardIndicator({
     fromDate,
-    toDate,
+    toDate
   })
-
   const revenue = data?.payload.data.revenue ?? 0
   const guestCount = data?.payload.data.guestCount ?? 0
   const orderCount = data?.payload.data.orderCount ?? 0
@@ -123,7 +121,7 @@ export default function DashboardMain() {
           </CardHeader>
           <CardContent>
             <div className='text-2xl font-bold'>{orderCount}</div>
-            <p className='text-xs text-muted-foreground'>Đã thanh toán</p>
+            {/* <p className='text-xs text-muted-foreground'>Đã thanh toán</p> */}
           </CardContent>
         </Card>
         <Card>
@@ -151,10 +149,10 @@ export default function DashboardMain() {
       </div>
       <div className='grid gap-4 md:grid-cols-2 lg:grid-cols-7'>
         <div className='lg:col-span-4'>
-          <RevenueLineChart revenueByDate={revenueByDate} />
+          <RevenueLineChart chartData={revenueByDate} />
         </div>
         <div className='lg:col-span-3'>
-          <DishBarChart dishIndicator={dishIndicator} />
+          <DishBarChart chartData={dishIndicator} />
         </div>
       </div>
     </div>

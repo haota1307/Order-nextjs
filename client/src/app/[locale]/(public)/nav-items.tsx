@@ -4,8 +4,6 @@ import { Role } from '@/constants/type'
 import { cn, handleErrorApi } from '@/lib/utils'
 import { useLogoutMutation } from '@/queries/useAuth'
 import { RoleType } from '@/types/jwt.types'
-
-import { useRouter } from '@/navigation'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -15,9 +13,10 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
+  AlertDialogTrigger
 } from '@/components/ui/alert-dialog'
-import { Link } from '@/navigation'
+import { Link, useRouter } from '@/navigation'
+import { useTranslations } from 'next-intl'
 
 const menuItems: {
   title: string
@@ -26,29 +25,29 @@ const menuItems: {
   hideWhenLogin?: boolean
 }[] = [
   {
-    title: 'Trang chủ',
-    href: '/',
+    title: 'home',
+    href: '/'
   },
   {
-    title: 'Menu',
+    title: 'menu',
     href: '/guest/menu',
-    role: [Role.Guest],
+    role: [Role.Guest]
   },
   {
-    title: 'Đơn hàng',
+    title: 'orders',
     href: '/guest/orders',
-    role: [Role.Guest],
+    role: [Role.Guest]
   },
   {
-    title: 'Đăng nhập',
+    title: 'login',
     href: '/login',
-    hideWhenLogin: true,
+    hideWhenLogin: true
   },
   {
-    title: 'Quản lý',
+    title: 'manage',
     href: '/manage/dashboard',
-    role: [Role.Owner, Role.Employee],
-  },
+    role: [Role.Owner, Role.Employee]
+  }
 ]
 
 // Server: Món ăn, Đăng nhập. Do server không biết trạng thái đăng nhập của user
@@ -56,6 +55,7 @@ const menuItems: {
 // Nhưng ngay sau đó thì client render ra là Món ăn, Đơn hàng, Quản lý do đã check được trạng thái đăng nhập
 
 export default function NavItems({ className }: { className?: string }) {
+  const t = useTranslations('NavItem')
   const role = useAppStore((state) => state.role)
   const setRole = useAppStore((state) => state.setRole)
   const disconnectSocket = useAppStore((state) => state.disconnectSocket)
@@ -70,7 +70,7 @@ export default function NavItems({ className }: { className?: string }) {
       router.push('/')
     } catch (error: any) {
       handleErrorApi({
-        error,
+        error
       })
     }
   }
@@ -86,7 +86,7 @@ export default function NavItems({ className }: { className?: string }) {
         if (isAuth || canShow) {
           return (
             <Link href={item.href} key={item.href} className={className}>
-              {item.title}
+              {t(item.title as any)}
             </Link>
           )
         }
@@ -95,17 +95,21 @@ export default function NavItems({ className }: { className?: string }) {
       {role && (
         <AlertDialog>
           <AlertDialogTrigger asChild>
-            <div className={cn(className, 'cursor-pointer')}>Đăng xuất</div>
+            <div className={cn(className, 'cursor-pointer')}>{t('logout')}</div>
           </AlertDialogTrigger>
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>Bạn có muốn đăng xuất không?</AlertDialogTitle>
+              <AlertDialogTitle>
+                {t('logoutDialog.logoutQuestion')}
+              </AlertDialogTitle>
               <AlertDialogDescription>
-                Việc đăng xuất có thể làm mất đi hóa đơn của bạn
+                {t('logoutDialog.logoutConfirm')}
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel>Thoát</AlertDialogCancel>
+              <AlertDialogCancel>
+                {t('logoutDialog.logoutCancel')}
+              </AlertDialogCancel>
               <AlertDialogAction onClick={logout}>OK</AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>

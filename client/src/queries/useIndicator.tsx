@@ -7,6 +7,6 @@ export const useDashboardIndicator = (
 ) => {
   return useQuery({
     queryFn: () => indicatorApiRequest.getDashboardIndicators(queryParams),
-    queryKey: ['dashboardIndicators', queryParams],
+    queryKey: ['dashboardIndicators', queryParams]
   })
 }

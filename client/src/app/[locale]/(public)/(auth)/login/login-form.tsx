@@ -5,7 +5,7 @@ import {
   CardContent,
   CardDescription,
   CardHeader,
-  CardTitle,
+  CardTitle
 } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -23,8 +23,9 @@ import envConfig from '@/config'
 import { Link } from '@/navigation'
 import { useTranslations } from 'next-intl'
 import SearchParamsLoader, {
-  useSearchParamsLoader,
+  useSearchParamsLoader
 } from '@/components/search-params-loader'
+import { LoaderCircle } from 'lucide-react'
 
 const getOauthGoogleUrl = () => {
   const rootUrl = 'https://accounts.google.com/o/oauth2/v2/auth'
@@ -36,8 +37,8 @@ const getOauthGoogleUrl = () => {
     prompt: 'consent',
     scope: [
       'https://www.googleapis.com/auth/userinfo.profile',
-      'https://www.googleapis.com/auth/userinfo.email',
-    ].join(' '),
+      'https://www.googleapis.com/auth/userinfo.email'
+    ].join(' ')
   }
   const qs = new URLSearchParams(options)
   return `${rootUrl}?${qs.toString()}`
@@ -56,8 +57,8 @@ export default function LoginForm() {
     resolver: zodResolver(LoginBody),
     defaultValues: {
       email: '',
-      password: '',
-    },
+      password: ''
+    }
   })
   const router = useRouter()
   useEffect(() => {
@@ -72,7 +73,7 @@ export default function LoginForm() {
     try {
       const result = await loginMutation.mutateAsync(data)
       toast({
-        description: result.payload.message,
+        description: result.payload.message
       })
       setRole(result.payload.data.account.role)
       router.push('/manage/dashboard')
@@ -80,7 +81,7 @@ export default function LoginForm() {
     } catch (error: any) {
       handleErrorApi({
         error,
-        setError: form.setError,
+        setError: form.setError
       })
     }
   }
@@ -148,6 +149,9 @@ export default function LoginForm() {
                 )}
               />
               <Button type='submit' className='w-full'>
+                {loginMutation.isPending && (
+                  <LoaderCircle className='w-5 h-5 mr-2 animate-spin' />
+                )}
                 {t('buttonLogin')}
               </Button>
               <Link href={googleOauthUrl}>

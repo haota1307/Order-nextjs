@@ -4,7 +4,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
+  DialogTrigger
 } from '@/components/ui/dialog'
 import {
   Table,
@@ -12,7 +12,7 @@ import {
   TableCell,
   TableHead,
   TableHeader,
-  TableRow,
+  TableRow
 } from '@/components/ui/table'
 import AutoPagination from '@/components/auto-pagination'
 import { useEffect, useState } from 'react'
@@ -26,7 +26,7 @@ import {
   getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
-  useReactTable,
+  useReactTable
 } from '@tanstack/react-table'
 import { formatDateTimeToLocaleString, simpleMatchText } from '@/lib/utils'
 import { Input } from '@/components/ui/input'
@@ -51,7 +51,7 @@ export const columns: ColumnDef<GuestItem>[] = [
         row.original.name + String(row.original.id),
         String(filterValue)
       )
-    },
+    }
   },
   {
     accessorKey: 'tableNumber',
@@ -65,7 +65,7 @@ export const columns: ColumnDef<GuestItem>[] = [
         String(row.original.tableNumber),
         String(filterValue)
       )
-    },
+    }
   },
   {
     accessorKey: 'createdAt',
@@ -74,8 +74,8 @@ export const columns: ColumnDef<GuestItem>[] = [
       <div className='flex items-center space-x-4 text-sm'>
         {formatDateTimeToLocaleString(row.getValue('createdAt'))}
       </div>
-    ),
-  },
+    )
+  }
 ]
 
 const PAGE_SIZE = 10
@@ -83,7 +83,7 @@ const initFromDate = startOfDay(new Date())
 const initToDate = endOfDay(new Date())
 
 export default function GuestsDialog({
-  onChoose,
+  onChoose
 }: {
   onChoose: (guest: GuestItem) => void
 }) {
@@ -92,7 +92,7 @@ export default function GuestsDialog({
   const [toDate, setToDate] = useState(initToDate)
   const guestListQuery = useGetGuestListQuery({
     fromDate,
-    toDate,
+    toDate
   })
   const data = guestListQuery.data?.payload.data ?? []
   const [sorting, setSorting] = useState<SortingState>([])
@@ -101,7 +101,7 @@ export default function GuestsDialog({
   const [rowSelection, setRowSelection] = useState({})
   const [pagination, setPagination] = useState({
     pageIndex: 0, // Gía trị mặc định ban đầu, không có ý nghĩa khi data được fetch bất đồng bộ
-    pageSize: PAGE_SIZE, //default page size
+    pageSize: PAGE_SIZE //default page size
   })
 
   const table = useReactTable({
@@ -122,14 +122,14 @@ export default function GuestsDialog({
       columnFilters,
       columnVisibility,
       rowSelection,
-      pagination,
-    },
+      pagination
+    }
   })
 
   useEffect(() => {
     table.setPagination({
       pageIndex: 0,
-      pageSize: PAGE_SIZE,
+      pageSize: PAGE_SIZE
     })
   }, [table])
 
@@ -277,7 +277,7 @@ export default function GuestsDialog({
                   onClick={(pageNumber) =>
                     table.setPagination({
                       pageIndex: pageNumber - 1,
-                      pageSize: PAGE_SIZE,
+                      pageSize: PAGE_SIZE
                     })
                   }
                   isLink={false}

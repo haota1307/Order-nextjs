@@ -11,7 +11,7 @@ import {
   getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
-  useReactTable,
+  useReactTable
 } from '@tanstack/react-table'
 
 import { Button } from '@/components/ui/button'
@@ -22,7 +22,7 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
-  DropdownMenuTrigger,
+  DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
 import { Input } from '@/components/ui/input'
 import {
@@ -31,20 +31,34 @@ import {
   TableCell,
   TableHead,
   TableHeader,
-  TableRow,
+  TableRow
 } from '@/components/ui/table'
 import {
   AccountListResType,
-  AccountType,
+  AccountType
 } from '@/schemaValidations/account.schema'
 import AddEmployee from '@/app/[locale]/manage/accounts/add-employee'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import EditEmployee from '@/app/[locale]/manage/accounts/edit-employee'
 import { createContext, useContext, useEffect, useState } from 'react'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle
+} from '@/components/ui/alert-dialog'
 import { useSearchParams } from 'next/navigation'
 import AutoPagination from '@/components/auto-pagination'
-import { useGetAccountList } from '@/queries/useAccount'
-import AlertDialogDeleteAccount from '@/app/[locale]/manage/accounts/alert-dialog-delete-account'
+import {
+  useDeleteAccountMutation,
+  useGetAccountList
+} from '@/queries/useAccount'
+import { toast } from '@/components/ui/use-toast'
+import { handleErrorApi } from '@/lib/utils'
 
 type AccountItem = AccountListResType['data'][0]
 
@@ -57,13 +71,13 @@ const AccountTableContext = createContext<{
   setEmployeeIdEdit: (value: number | undefined) => {},
   employeeIdEdit: undefined,
   employeeDelete: null,
-  setEmployeeDelete: (value: AccountItem | null) => {},
+  setEmployeeDelete: (value: AccountItem | null) => {}
 })
 
 export const columns: ColumnDef<AccountType>[] = [
   {
     accessorKey: 'id',
-    header: 'ID',
+    header: 'ID'
   },
   {
     accessorKey: 'avatar',
@@ -77,12 +91,12 @@ export const columns: ColumnDef<AccountType>[] = [
           </AvatarFallback>
         </Avatar>
       </div>
-    ),
+    )
   },
   {
     accessorKey: 'name',
     header: 'Tên',
-    cell: ({ row }) => <div className='capitalize'>{row.getValue('name')}</div>,
+    cell: ({ row }) => <div className='capitalize'>{row.getValue('name')}</div>
   },
   {
     accessorKey: 'email',
@@ -96,8 +110,7 @@ export const columns: ColumnDef<AccountType>[] = [
           <CaretSortIcon className='ml-2 h-4 w-4' />
         </Button>
       )
-    },
-    // cell: ({ row }) => <div>{row.getValue('email')}</div>,
+    }
   },
   {
     id: 'actions',
@@ -108,6 +121,7 @@ export const columns: ColumnDef<AccountType>[] = [
       const openEditEmployee = () => {
         setEmployeeIdEdit(row.original.id)
       }
+
       const openDeleteEmployee = () => {
         setEmployeeDelete(row.original)
       }
@@ -129,10 +143,63 @@ export const columns: ColumnDef<AccountType>[] = [
           </DropdownMenuContent>
         </DropdownMenu>
       )
-    },
-  },
+    }
+  }
 ]
 
+function AlertDialogDeleteAccount({
+  employeeDelete,
+  setEmployeeDelete
+}: {
+  employeeDelete: AccountItem | null
+  setEmployeeDelete: (value: AccountItem | null) => void
+}) {
+  const { mutateAsync } = useDeleteAccountMutation()
+  const deleteAccount = async () => {
+    if (employeeDelete) {
+      try {
+        const result = await mutateAsync(employeeDelete.id)
+        setEmployeeDelete(null)
+        toast({
+          title: result.payload.message
+        })
+      } catch (error) {
+        handleErrorApi({
+          error
+        })
+      }
+    }
+  }
+  return (
+    <AlertDialog
+      open={Boolean(employeeDelete)}
+      onOpenChange={(value) => {
+        if (!value) {
+          setEmployeeDelete(null)
+        }
+      }}
+    >
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Xóa nhân viên?</AlertDialogTitle>
+          <AlertDialogDescription>
+            Tài khoản{' '}
+            <span className='bg-foreground text-primary-foreground rounded px-1'>
+              {employeeDelete?.name}
+            </span>{' '}
+            sẽ bị xóa vĩnh viễn
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogAction onClick={deleteAccount}>
+            Continue
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  )
+}
 // Số lượng item trên 1 trang
 const PAGE_SIZE = 10
 export default function AccountTable() {
@@ -150,7 +217,7 @@ export default function AccountTable() {
   const [rowSelection, setRowSelection] = useState({})
   const [pagination, setPagination] = useState({
     pageIndex, // Gía trị mặc định ban đầu, không có ý nghĩa khi data được fetch bất đồng bộ
-    pageSize: PAGE_SIZE, //default page size
+    pageSize: PAGE_SIZE //default page size
   })
 
   const table = useReactTable({
@@ -171,14 +238,14 @@ export default function AccountTable() {
       columnFilters,
       columnVisibility,
       rowSelection,
-      pagination,
-    },
+      pagination
+    }
   })
 
   useEffect(() => {
     table.setPagination({
       pageIndex,
-      pageSize: PAGE_SIZE,
+      pageSize: PAGE_SIZE
     })
   }, [table, pageIndex])
 
@@ -188,7 +255,7 @@ export default function AccountTable() {
         employeeIdEdit,
         setEmployeeIdEdit,
         employeeDelete,
-        setEmployeeDelete,
+        setEmployeeDelete
       }}
     >
       <div className='w-full'>

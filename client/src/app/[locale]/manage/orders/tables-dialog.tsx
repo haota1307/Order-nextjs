@@ -4,7 +4,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
+  DialogTrigger
 } from '@/components/ui/dialog'
 import {
   Table,
@@ -12,7 +12,7 @@ import {
   TableCell,
   TableHead,
   TableHeader,
-  TableRow,
+  TableRow
 } from '@/components/ui/table'
 import AutoPagination from '@/components/auto-pagination'
 import { useEffect, useState } from 'react'
@@ -26,7 +26,7 @@ import {
   getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
-  useReactTable,
+  useReactTable
 } from '@tanstack/react-table'
 import { cn, getVietnameseTableStatus, simpleMatchText } from '@/lib/utils'
 import { Input } from '@/components/ui/input'
@@ -46,28 +46,28 @@ export const columns: ColumnDef<TableItem>[] = [
     filterFn: (row, columnId, filterValue: string) => {
       if (filterValue === undefined) return true
       return simpleMatchText(String(row.original.number), String(filterValue))
-    },
+    }
   },
   {
     accessorKey: 'capacity',
     header: 'Sức chứa',
     cell: ({ row }) => (
       <div className='capitalize'>{row.getValue('capacity')}</div>
-    ),
+    )
   },
   {
     accessorKey: 'status',
     header: 'Trạng thái',
     cell: ({ row }) => (
       <div>{getVietnameseTableStatus(row.getValue('status'))}</div>
-    ),
-  },
+    )
+  }
 ]
 
 const PAGE_SIZE = 10
 
 export function TablesDialog({
-  onChoose,
+  onChoose
 }: {
   onChoose: (table: TableItem) => void
 }) {
@@ -80,7 +80,7 @@ export function TablesDialog({
   const [rowSelection, setRowSelection] = useState({})
   const [pagination, setPagination] = useState({
     pageIndex: 0, // Gía trị mặc định ban đầu, không có ý nghĩa khi data được fetch bất đồng bộ
-    pageSize: PAGE_SIZE, //default page size
+    pageSize: PAGE_SIZE //default page size
   })
 
   const table = useReactTable({
@@ -101,14 +101,14 @@ export function TablesDialog({
       columnFilters,
       columnVisibility,
       rowSelection,
-      pagination,
-    },
+      pagination
+    }
   })
 
   useEffect(() => {
     table.setPagination({
       pageIndex: 0,
-      pageSize: PAGE_SIZE,
+      pageSize: PAGE_SIZE
     })
   }, [table])
 
@@ -179,7 +179,7 @@ export function TablesDialog({
                             row.original.status === TableStatus.Available ||
                             row.original.status === TableStatus.Reserved,
                           'cursor-not-allowed':
-                            row.original.status === TableStatus.Hidden,
+                            row.original.status === TableStatus.Hidden
                         })}
                       >
                         {row.getVisibleCells().map((cell) => (
@@ -218,7 +218,7 @@ export function TablesDialog({
                   onClick={(pageNumber) =>
                     table.setPagination({
                       pageIndex: pageNumber - 1,
-                      pageSize: PAGE_SIZE,
+                      pageSize: PAGE_SIZE
                     })
                   }
                   isLink={false}

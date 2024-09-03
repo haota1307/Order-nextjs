@@ -11,7 +11,7 @@ import {
   getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
-  useReactTable,
+  useReactTable
 } from '@tanstack/react-table'
 import { Button } from '@/components/ui/button'
 
@@ -21,7 +21,7 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
-  DropdownMenuTrigger,
+  DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
 import { Input } from '@/components/ui/input'
 import {
@@ -30,18 +30,28 @@ import {
   TableCell,
   TableHead,
   TableHeader,
-  TableRow,
+  TableRow
 } from '@/components/ui/table'
 import { createContext, useContext, useEffect, useState } from 'react'
-import { getVietnameseTableStatus } from '@/lib/utils'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle
+} from '@/components/ui/alert-dialog'
+import { getVietnameseTableStatus, handleErrorApi } from '@/lib/utils'
 import { useSearchParams } from 'next/navigation'
 import AutoPagination from '@/components/auto-pagination'
 import { TableListResType } from '@/schemaValidations/table.schema'
 import EditTable from '@/app/[locale]/manage/tables/edit-table'
 import AddTable from '@/app/[locale]/manage/tables/add-table'
-import { useTableListQuery } from '@/queries/useTable'
+import { useDeleteTableMutation, useTableListQuery } from '@/queries/useTable'
 import QRCodeTable from '@/components/qrcode-table'
-import AlertDialogDeleteTable from '@/app/[locale]/manage/tables/alert-dialog-detele-table'
+import { toast } from '@/components/ui/use-toast'
 
 type TableItem = TableListResType['data'][0]
 
@@ -54,7 +64,7 @@ const TableTableContext = createContext<{
   setTableIdEdit: (value: number | undefined) => {},
   tableIdEdit: undefined,
   tableDelete: null,
-  setTableDelete: (value: TableItem | null) => {},
+  setTableDelete: (value: TableItem | null) => {}
 })
 
 export const columns: ColumnDef<TableItem>[] = [
@@ -67,21 +77,21 @@ export const columns: ColumnDef<TableItem>[] = [
     filterFn: (rows, columnId, filterValue) => {
       if (!filterValue) return true
       return String(filterValue) === String(rows.getValue('number'))
-    },
+    }
   },
   {
     accessorKey: 'capacity',
     header: 'Sức chứa',
     cell: ({ row }) => (
       <div className='capitalize'>{row.getValue('capacity')}</div>
-    ),
+    )
   },
   {
     accessorKey: 'status',
     header: 'Trạng thái',
     cell: ({ row }) => (
       <div>{getVietnameseTableStatus(row.getValue('status'))}</div>
-    ),
+    )
   },
   {
     accessorKey: 'token',
@@ -93,7 +103,7 @@ export const columns: ColumnDef<TableItem>[] = [
           tableNumber={row.getValue('number')}
         />
       </div>
-    ),
+    )
   },
   {
     id: 'actions',
@@ -123,10 +133,61 @@ export const columns: ColumnDef<TableItem>[] = [
           </DropdownMenuContent>
         </DropdownMenu>
       )
-    },
-  },
+    }
+  }
 ]
 
+function AlertDialogDeleteTable({
+  tableDelete,
+  setTableDelete
+}: {
+  tableDelete: TableItem | null
+  setTableDelete: (value: TableItem | null) => void
+}) {
+  const { mutateAsync } = useDeleteTableMutation()
+  const deleteTable = async () => {
+    if (tableDelete) {
+      try {
+        const result = await mutateAsync(tableDelete.number)
+        setTableDelete(null)
+        toast({
+          title: result.payload.message
+        })
+      } catch (error) {
+        handleErrorApi({
+          error
+        })
+      }
+    }
+  }
+  return (
+    <AlertDialog
+      open={Boolean(tableDelete)}
+      onOpenChange={(value) => {
+        if (!value) {
+          setTableDelete(null)
+        }
+      }}
+    >
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Xóa bàn ăn?</AlertDialogTitle>
+          <AlertDialogDescription>
+            Bàn{' '}
+            <span className='bg-foreground text-primary-foreground rounded px-1'>
+              {tableDelete?.number}
+            </span>{' '}
+            sẽ bị xóa vĩnh viễn
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogAction onClick={deleteTable}>Continue</AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  )
+}
 // Số lượng item trên 1 trang
 const PAGE_SIZE = 10
 export default function TableTable() {
@@ -144,7 +205,7 @@ export default function TableTable() {
   const [rowSelection, setRowSelection] = useState({})
   const [pagination, setPagination] = useState({
     pageIndex, // Gía trị mặc định ban đầu, không có ý nghĩa khi data được fetch bất đồng bộ
-    pageSize: PAGE_SIZE, //default page size
+    pageSize: PAGE_SIZE //default page size
   })
 
   const table = useReactTable({
@@ -165,14 +226,14 @@ export default function TableTable() {
       columnFilters,
       columnVisibility,
       rowSelection,
-      pagination,
-    },
+      pagination
+    }
   })
 
   useEffect(() => {
     table.setPagination({
       pageIndex,
-      pageSize: PAGE_SIZE,
+      pageSize: PAGE_SIZE
     })
   }, [table, pageIndex])
 
@@ -192,9 +253,9 @@ export default function TableTable() {
             value={
               (table.getColumn('number')?.getFilterValue() as string) ?? ''
             }
-            onChange={(event) =>
+            onChange={(event) => {
               table.getColumn('number')?.setFilterValue(event.target.value)
-            }
+            }}
             className='max-w-sm'
           />
           <div className='ml-auto flex items-center gap-2'>

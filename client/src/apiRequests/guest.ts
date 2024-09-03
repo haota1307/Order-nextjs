@@ -17,7 +17,8 @@ const guestApiRequest = {
     status: number
     payload: RefreshTokenResType
   }> | null,
-  sLogin: (body: GuestLoginBodyType) => http.post<GuestLoginResType>('/guest/auth/login', body),
+  sLogin: (body: GuestLoginBodyType) =>
+    http.post<GuestLoginResType>('/guest/auth/login', body),
   login: (body: GuestLoginBodyType) =>
     http.post<GuestLoginResType>('/api/guest/auth/login', body, {
       baseUrl: '',

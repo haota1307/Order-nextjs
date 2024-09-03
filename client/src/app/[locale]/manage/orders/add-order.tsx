@@ -5,7 +5,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
+  DialogTrigger
 } from '@/components/ui/dialog'
 import { PlusCircle } from 'lucide-react'
 import { useMemo, useState } from 'react'
@@ -13,7 +13,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
   GuestLoginBody,
-  GuestLoginBodyType,
+  GuestLoginBodyType
 } from '@/schemaValidations/guest.schema'
 import { Form, FormField, FormItem, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
@@ -50,16 +50,15 @@ export default function AddOrder() {
       return result + order.quantity * dish.price
     }, 0)
   }, [dishes, orders])
-
-  const createOrdersMutation = useCreateOrderMutation()
+  const createOrderMutation = useCreateOrderMutation()
   const createGuestMutation = useCreateGuestMutation()
 
   const form = useForm<GuestLoginBodyType>({
     resolver: zodResolver(GuestLoginBody),
     defaultValues: {
       name: '',
-      tableNumber: 0,
-    },
+      tableNumber: 0
+    }
   })
   const name = form.watch('name')
   const tableNumber = form.watch('tableNumber')
@@ -79,46 +78,41 @@ export default function AddOrder() {
     })
   }
 
-  const reset = () => {
-    form.reset()
-    setSelectedGuest(null)
-    setIsNewGuest(true)
-    setOrders([])
-    setOpen(false)
-  }
-
   const handleOrder = async () => {
     try {
       let guestId = selectedGuest?.id
       if (isNewGuest) {
         const guestRes = await createGuestMutation.mutateAsync({
           name,
-          tableNumber,
+          tableNumber
         })
         guestId = guestRes.payload.data.id
       }
-
       if (!guestId) {
         toast({
-          title: 'Thông báo',
-          description: 'Bạn hãy chọn khách hàng trước khi đặt hàng',
-          variant: 'destructive',
+          description: 'Hãy chọn một khách hàng'
         })
         return
       }
-
-      await createOrdersMutation.mutateAsync({
+      await createOrderMutation.mutateAsync({
         guestId,
-        orders,
+        orders
       })
-
       reset()
     } catch (error) {
       handleErrorApi({
         error,
-        setError: form.setError,
+        setError: form.setError
       })
     }
+  }
+
+  const reset = () => {
+    form.reset()
+    setSelectedGuest(null)
+    setIsNewGuest(true)
+    setOrders([])
+    setOpen(false)
   }
 
   return (
@@ -225,7 +219,7 @@ export default function AddOrder() {
             <div
               key={dish.id}
               className={cn('flex gap-4', {
-                'pointer-events-none': dish.status === DishStatus.Unavailable,
+                'pointer-events-none': dish.status === DishStatus.Unavailable
               })}
             >
               <div className='flex-shrink-0 relative'>

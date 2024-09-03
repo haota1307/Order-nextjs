@@ -9,20 +9,28 @@ export async function POST(request: Request) {
   cookieStore.delete('refreshToken')
   if (!accessToken || !refreshToken) {
     return Response.json(
-      { message: 'Không nhận được access token và refresh token' },
-      { status: 200 }
+      {
+        message: 'Không nhận được access token hoặc refresh token'
+      },
+      {
+        status: 200
+      }
     )
   }
   try {
     const result = await authApiRequest.sLogout({
       accessToken,
-      refreshToken,
+      refreshToken
     })
     return Response.json(result.payload)
   } catch (error) {
     return Response.json(
-      { message: 'Lỗi khi gọi đến API server backend' },
-      { status: 200 }
+      {
+        message: 'Lỗi khi gọi API đến server backend'
+      },
+      {
+        status: 200
+      }
     )
   }
 }

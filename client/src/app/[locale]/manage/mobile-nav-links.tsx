@@ -25,7 +25,7 @@ export default function MobileNavLinks() {
             className='group flex h-10 w-10 shrink-0 items-center justify-center gap-2 rounded-full bg-primary text-lg font-semibold text-primary-foreground md:text-base'
           >
             <Package2 className='h-5 w-5 transition-all group-hover:scale-110' />
-            <span className='sr-only'>Hafo Restaurent</span>
+            <span className='sr-only'>Acme Inc</span>
           </Link>
           {menuItems.map((Item, index) => {
             const isActive = pathname === Item.href
@@ -38,7 +38,7 @@ export default function MobileNavLinks() {
                   'flex items-center gap-4 px-2.5  hover:text-foreground',
                   {
                     'text-foreground': isActive,
-                    'text-muted-foreground': !isActive,
+                    'text-muted-foreground': !isActive
                   }
                 )}
               >

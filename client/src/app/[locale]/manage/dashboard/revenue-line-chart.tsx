@@ -8,27 +8,27 @@ import {
   CardDescription,
   CardFooter,
   CardHeader,
-  CardTitle,
+  CardTitle
 } from '@/components/ui/card'
 import {
   ChartConfig,
   ChartContainer,
   ChartTooltip,
-  ChartTooltipContent,
+  ChartTooltipContent
 } from '@/components/ui/chart'
 import { format, parse } from 'date-fns'
 import { DashboardIndicatorResType } from '@/schemaValidations/indicator.schema'
 const chartConfig = {
   desktop: {
     label: 'Desktop',
-    color: 'hsl(var(--chart-1))',
-  },
+    color: 'hsl(var(--chart-1))'
+  }
 } satisfies ChartConfig
 
 export function RevenueLineChart({
-  revenueByDate,
+  chartData
 }: {
-  revenueByDate: DashboardIndicatorResType['data']['revenueByDate']
+  chartData: DashboardIndicatorResType['data']['revenueByDate']
 }) {
   return (
     <Card>
@@ -40,10 +40,10 @@ export function RevenueLineChart({
         <ChartContainer config={chartConfig}>
           <LineChart
             accessibilityLayer
-            data={revenueByDate}
+            data={chartData}
             margin={{
               left: 12,
-              right: 12,
+              right: 12
             }}
           >
             <CartesianGrid vertical={false} />
@@ -53,10 +53,10 @@ export function RevenueLineChart({
               axisLine={false}
               tickMargin={8}
               tickFormatter={(value) => {
-                if (revenueByDate.length < 8) {
+                if (chartData.length < 8) {
                   return value
                 }
-                if (revenueByDate.length < 33) {
+                if (chartData.length < 33) {
                   const date = parse(value, 'dd/MM/yyyy', new Date())
                   return format(date, 'dd')
                 }
@@ -69,8 +69,8 @@ export function RevenueLineChart({
             />
             <Line
               dataKey='revenue'
+              name='Doanh thu'
               type='linear'
-              name='Doanh Thu'
               stroke='var(--color-desktop)'
               strokeWidth={2}
               dot={false}
@@ -78,7 +78,14 @@ export function RevenueLineChart({
           </LineChart>
         </ChartContainer>
       </CardContent>
-      <CardFooter className='flex-col items-start gap-2 text-sm'></CardFooter>
+      <CardFooter className='flex-col items-start gap-2 text-sm'>
+        {/* <div className='flex gap-2 font-medium leading-none'>
+          Trending up by 5.2% this month <TrendingUp className='h-4 w-4' />
+        </div>
+        <div className='leading-none text-muted-foreground'>
+          Showing total visitors for the last 6 months
+        </div> */}
+      </CardFooter>
     </Card>
   )
 }

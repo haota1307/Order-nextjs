@@ -1,3 +1,4 @@
+import NextBundleAnalyzer from '@next/bundle-analyzer'
 import createNextIntlPlugin from 'next-intl/plugin'
 
 const withNextIntl = createNextIntlPlugin()
@@ -7,14 +8,20 @@ const nextConfig = {
     remotePatterns: [
       {
         hostname: 'localhost',
-        pathname: '/**'
+        pathname: '/**',
+      },
+      {
+        hostname: 'api-bigboy.duthanhduoc.com',
+        pathname: '/**',
       },
       {
         hostname: 'via.placeholder.com',
-        pathname: '/**'
-      }
-    ]
-  }
+        pathname: '/**',
+      },
+    ],
+  },
 }
-
-export default withNextIntl(nextConfig)
+const withBundleAnalyzer = NextBundleAnalyzer({
+  enabled: process.env.ANALYZE === 'true',
+})
+export default withNextIntl(withBundleAnalyzer(nextConfig))

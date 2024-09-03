@@ -11,17 +11,17 @@ import {
   getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
-  useReactTable,
+  useReactTable
 } from '@tanstack/react-table'
 import { Button } from '@/components/ui/button'
-
+import DOMPurify from 'dompurify'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
-  DropdownMenuTrigger,
+  DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
 import { Input } from '@/components/ui/input'
 import {
@@ -30,7 +30,7 @@ import {
   TableCell,
   TableHead,
   TableHeader,
-  TableRow,
+  TableRow
 } from '@/components/ui/table'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { createContext, useContext, useEffect, useState } from 'react'
@@ -42,17 +42,20 @@ import {
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
-  AlertDialogTitle,
+  AlertDialogTitle
 } from '@/components/ui/alert-dialog'
-import { formatCurrency, getVietnameseDishStatus } from '@/lib/utils'
+import {
+  formatCurrency,
+  getVietnameseDishStatus,
+  handleErrorApi
+} from '@/lib/utils'
 import { useSearchParams } from 'next/navigation'
 import AutoPagination from '@/components/auto-pagination'
 import { DishListResType } from '@/schemaValidations/dish.schema'
 import EditDish from '@/app/[locale]/manage/dishes/edit-dish'
 import AddDish from '@/app/[locale]/manage/dishes/add-dish'
-import { useDishListQuery } from '@/queries/useDish'
-import DOMPurify from 'dompurify'
-import AlertDialogDeleteDish from '@/app/[locale]/manage/dishes/alert-dialog-delete-dish'
+import { useDeleteDishMutation, useDishListQuery } from '@/queries/useDish'
+import { toast } from '@/components/ui/use-toast'
 
 type DishItem = DishListResType['data'][0]
 
@@ -65,13 +68,13 @@ const DishTableContext = createContext<{
   setDishIdEdit: (value: number | undefined) => {},
   dishIdEdit: undefined,
   dishDelete: null,
-  setDishDelete: (value: DishItem | null) => {},
+  setDishDelete: (value: DishItem | null) => {}
 })
 
 export const columns: ColumnDef<DishItem>[] = [
   {
     accessorKey: 'id',
-    header: 'ID',
+    header: 'ID'
   },
   {
     accessorKey: 'image',
@@ -85,42 +88,38 @@ export const columns: ColumnDef<DishItem>[] = [
           </AvatarFallback>
         </Avatar>
       </div>
-    ),
+    )
   },
   {
     accessorKey: 'name',
     header: 'Tên',
-    cell: ({ row }) => <div className='capitalize'>{row.getValue('name')}</div>,
+    cell: ({ row }) => <div className='capitalize'>{row.getValue('name')}</div>
   },
   {
     accessorKey: 'price',
     header: 'Giá cả',
     cell: ({ row }) => (
       <div className='capitalize'>{formatCurrency(row.getValue('price'))}</div>
-    ),
+    )
   },
   {
     accessorKey: 'description',
     header: 'Mô tả',
     cell: ({ row }) => (
       <div
-        /**
-         * dangerouslySetInnerHTML: giúp có thể style chữ trong tương lại
-         * DOMPurify: chống xxs
-         */
         dangerouslySetInnerHTML={{
-          __html: DOMPurify.sanitize(row.getValue('description')),
+          __html: DOMPurify.sanitize(row.getValue('description'))
         }}
         className='whitespace-pre-line'
       />
-    ),
+    )
   },
   {
     accessorKey: 'status',
     header: 'Trạng thái',
     cell: ({ row }) => (
       <div>{getVietnameseDishStatus(row.getValue('status'))}</div>
-    ),
+    )
   },
   {
     id: 'actions',
@@ -150,10 +149,61 @@ export const columns: ColumnDef<DishItem>[] = [
           </DropdownMenuContent>
         </DropdownMenu>
       )
-    },
-  },
+    }
+  }
 ]
 
+function AlertDialogDeleteDish({
+  dishDelete,
+  setDishDelete
+}: {
+  dishDelete: DishItem | null
+  setDishDelete: (value: DishItem | null) => void
+}) {
+  const { mutateAsync } = useDeleteDishMutation()
+  const deleteDish = async () => {
+    if (dishDelete) {
+      try {
+        const result = await mutateAsync(dishDelete.id)
+        setDishDelete(null)
+        toast({
+          title: result.payload.message
+        })
+      } catch (error) {
+        handleErrorApi({
+          error
+        })
+      }
+    }
+  }
+  return (
+    <AlertDialog
+      open={Boolean(dishDelete)}
+      onOpenChange={(value) => {
+        if (!value) {
+          setDishDelete(null)
+        }
+      }}
+    >
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Xóa món ăn?</AlertDialogTitle>
+          <AlertDialogDescription>
+            Món{' '}
+            <span className='bg-foreground text-primary-foreground rounded px-1'>
+              {dishDelete?.name}
+            </span>{' '}
+            sẽ bị xóa vĩnh viễn
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogAction onClick={deleteDish}>Continue</AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  )
+}
 // Số lượng item trên 1 trang
 const PAGE_SIZE = 10
 export default function DishTable() {
@@ -163,14 +213,14 @@ export default function DishTable() {
   const [dishIdEdit, setDishIdEdit] = useState<number | undefined>()
   const [dishDelete, setDishDelete] = useState<DishItem | null>(null)
   const dishListQuery = useDishListQuery()
-  const data = dishListQuery.data?.payload.data || []
+  const data = dishListQuery.data?.payload.data ?? []
   const [sorting, setSorting] = useState<SortingState>([])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
   const [rowSelection, setRowSelection] = useState({})
   const [pagination, setPagination] = useState({
     pageIndex, // Gía trị mặc định ban đầu, không có ý nghĩa khi data được fetch bất đồng bộ
-    pageSize: PAGE_SIZE, //default page size
+    pageSize: PAGE_SIZE //default page size
   })
 
   const table = useReactTable({
@@ -191,14 +241,14 @@ export default function DishTable() {
       columnFilters,
       columnVisibility,
       rowSelection,
-      pagination,
-    },
+      pagination
+    }
   })
 
   useEffect(() => {
     table.setPagination({
       pageIndex,
-      pageSize: PAGE_SIZE,
+      pageSize: PAGE_SIZE
     })
   }, [table, pageIndex])
 

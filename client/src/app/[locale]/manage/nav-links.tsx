@@ -5,11 +5,11 @@ import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-  TooltipProvider,
+  TooltipProvider
 } from '@/components/ui/tooltip'
 import { cn } from '@/lib/utils'
-import { Link, usePathname } from '@/navigation'
 import { Package2, Settings } from 'lucide-react'
+import { Link, usePathname } from '@/navigation'
 
 export default function NavLinks() {
   const pathname = usePathname()
@@ -24,7 +24,7 @@ export default function NavLinks() {
             className='group flex h-9 w-9 shrink-0 items-center justify-center gap-2 rounded-full bg-primary text-lg font-semibold text-primary-foreground md:h-8 md:w-8 md:text-base'
           >
             <Package2 className='h-4 w-4 transition-all group-hover:scale-110' />
-            <span className='sr-only'>Hafo Restaurant</span>
+            <span className='sr-only'>Big Boy Restaurant</span>
           </Link>
 
           {menuItems.map((Item, index) => {
@@ -39,7 +39,7 @@ export default function NavLinks() {
                       'flex h-9 w-9 items-center justify-center rounded-lg transition-colors hover:text-foreground md:h-8 md:w-8',
                       {
                         'bg-accent text-accent-foreground': isActive,
-                        'text-muted-foreground': !isActive,
+                        'text-muted-foreground': !isActive
                       }
                     )}
                   >
@@ -62,7 +62,7 @@ export default function NavLinks() {
                   {
                     'bg-accent text-accent-foreground':
                       pathname === '/manage/setting',
-                    'text-muted-foreground': pathname !== '/manage/setting',
+                    'text-muted-foreground': pathname !== '/manage/setting'
                   }
                 )}
               >

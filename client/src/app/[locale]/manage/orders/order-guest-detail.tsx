@@ -7,12 +7,12 @@ import {
   formatDateTimeToLocaleString,
   formatDateTimeToTimeString,
   getVietnameseOrderStatus,
-  handleErrorApi,
+  handleErrorApi
 } from '@/lib/utils'
 import { usePayForGuestMutation } from '@/queries/useOrder'
 import {
   GetOrdersResType,
-  PayGuestOrdersResType,
+  PayGuestOrdersResType
 } from '@/schemaValidations/order.schema'
 import Image from 'next/image'
 import { Fragment } from 'react'
@@ -22,7 +22,7 @@ type Orders = GetOrdersResType['data']
 export default function OrderGuestDetail({
   guest,
   orders,
-  onPaySuccess,
+  onPaySuccess
 }: {
   guest: Guest
   orders: Orders
@@ -39,16 +39,17 @@ export default function OrderGuestDetail({
     ? orders.filter((order) => order.status === OrderStatus.Paid)
     : []
   const payForGuestMutation = usePayForGuestMutation()
+
   const pay = async () => {
     if (payForGuestMutation.isPending || !guest) return
     try {
       const result = await payForGuestMutation.mutateAsync({
-        guestId: guest.id,
+        guestId: guest.id
       })
       onPaySuccess && onPaySuccess(result.payload)
     } catch (error) {
       handleErrorApi({
-        error,
+        error
       })
     }
   }

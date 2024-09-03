@@ -1,12 +1,12 @@
 'use client'
+import { getTableLink } from '@/lib/utils'
 import QRCode from 'qrcode'
 import { useEffect, useRef } from 'react'
-import { getTableLink } from '@/lib/utils'
 
 export default function QRCodeTable({
   token,
   tableNumber,
-  width = 250,
+  width = 250
 }: {
   token: string
   tableNumber: number
@@ -14,6 +14,10 @@ export default function QRCodeTable({
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   useEffect(() => {
+    // Hiện tại: Thư viện QRCode nó sẽ vẽ lên cái thẻ Canvas
+    // Bây giờ: Chúng ta sẽ tạo 1 cái thẻ canvas ảo để thư viện QRCode code nó vẽ QR lên trên đó.
+    // Và chúng ta sẽ edit thẻ canvas thật
+    // Cuối cùng thì chúng ta sẽ đưa cái thẻ canvas ảo chứa QR Code ở trên vào thẻ Canvas thật
     const canvas = canvasRef.current!
     canvas.height = width + 70
     canvas.width = width
@@ -23,32 +27,32 @@ export default function QRCodeTable({
     canvasContext.font = '20px Arial'
     canvasContext.textAlign = 'center'
     canvasContext.fillStyle = '#000'
-    canvasContext.fillText(`Bàn số ${tableNumber}`, canvas.width / 2, canvas.width + 25)
-    canvasContext.fillText(`Quét mã QR để gọi món`, canvas.width / 2, canvas.width + 50)
-
-    const virtualCanvas = document.createElement('canvas')
-
+    canvasContext.fillText(
+      `Bàn số ${tableNumber}`,
+      canvas.width / 2,
+      canvas.width + 20
+    )
+    canvasContext.fillText(
+      `Quét mã QR để gọi món`,
+      canvas.width / 2,
+      canvas.width + 50
+    )
+    const virtalCanvas = document.createElement('canvas')
     QRCode.toCanvas(
-      virtualCanvas,
+      virtalCanvas,
       getTableLink({
         token,
-        tableNumber,
+        tableNumber
       }),
       {
-        width: width * 3, // Tạo mã QR với kích thước lớn hơn
+        width,
+        margin: 4
       },
       function (error) {
-        if (error) console.log(error)
-        canvasContext.drawImage(virtualCanvas, 0, 0, width, width)
+        if (error) console.error(error)
+        canvasContext.drawImage(virtalCanvas, 0, 0, width, width)
       }
     )
-  }, [token, tableNumber, width])
+  }, [token, width, tableNumber])
   return <canvas ref={canvasRef} />
 }
-
-/** Note:
- * Thư viện QRcode sẽ vẽ lên thẻ canvas
- * Ta sẽ tạo ra thẻ canvas ảo để thư viện vẽ lên thẻ canvas đó
- * và ta sẽ edit thẻ canvas thật
- * => chúng ta sẽ đưa thẻ canvas ảo chứa qrcode vào thẻ canvas thật
- */

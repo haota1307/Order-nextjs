@@ -4,7 +4,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
+  DialogTrigger
 } from '@/components/ui/dialog'
 import {
   Table,
@@ -12,7 +12,7 @@ import {
   TableCell,
   TableHead,
   TableHeader,
-  TableRow,
+  TableRow
 } from '@/components/ui/table'
 import AutoPagination from '@/components/auto-pagination'
 import { DishListResType } from '@/schemaValidations/dish.schema'
@@ -27,12 +27,12 @@ import {
   getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
-  useReactTable,
+  useReactTable
 } from '@tanstack/react-table'
 import {
   formatCurrency,
   getVietnameseDishStatus,
-  simpleMatchText,
+  simpleMatchText
 } from '@/lib/utils'
 import { Input } from '@/components/ui/input'
 import Image from 'next/image'
@@ -59,27 +59,27 @@ export const columns: ColumnDef<DishItem>[] = [
     filterFn: (row, columnId, filterValue: string) => {
       if (filterValue === undefined) return true
       return simpleMatchText(String(row.original.name), String(filterValue))
-    },
+    }
   },
   {
     accessorKey: 'price',
     header: 'Giá cả',
     cell: ({ row }) => (
       <div className='capitalize'>{formatCurrency(row.getValue('price'))}</div>
-    ),
+    )
   },
   {
     accessorKey: 'status',
     header: 'Trạng thái',
     cell: ({ row }) => (
       <div>{getVietnameseDishStatus(row.getValue('status'))}</div>
-    ),
-  },
+    )
+  }
 ]
 
 const PAGE_SIZE = 10
 export function DishesDialog({
-  onChoose,
+  onChoose
 }: {
   onChoose: (dish: DishItem) => void
 }) {
@@ -92,7 +92,7 @@ export function DishesDialog({
   const [rowSelection, setRowSelection] = useState({})
   const [pagination, setPagination] = useState({
     pageIndex: 0, // Gía trị mặc định ban đầu, không có ý nghĩa khi data được fetch bất đồng bộ
-    pageSize: PAGE_SIZE, //default page size
+    pageSize: PAGE_SIZE //default page size
   })
 
   const table = useReactTable({
@@ -113,14 +113,14 @@ export function DishesDialog({
       columnFilters,
       columnVisibility,
       rowSelection,
-      pagination,
-    },
+      pagination
+    }
   })
 
   useEffect(() => {
     table.setPagination({
       pageIndex: 0,
-      pageSize: PAGE_SIZE,
+      pageSize: PAGE_SIZE
     })
   }, [table])
 
@@ -220,7 +220,7 @@ export function DishesDialog({
                   onClick={(pageNumber) =>
                     table.setPagination({
                       pageIndex: pageNumber - 1,
-                      pageSize: PAGE_SIZE,
+                      pageSize: PAGE_SIZE
                     })
                   }
                   isLink={false}

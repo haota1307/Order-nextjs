@@ -8,7 +8,7 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
+  SelectValue
 } from '@/components/ui/select'
 import {
   DropdownMenu,
@@ -16,7 +16,7 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
-  DropdownMenuTrigger,
+  DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
 import { GetOrdersResType } from '@/schemaValidations/order.schema'
 import { useContext } from 'react'
@@ -24,7 +24,7 @@ import {
   formatCurrency,
   formatDateTimeToLocaleString,
   getVietnameseOrderStatus,
-  simpleMatchText,
+  simpleMatchText
 } from '@/lib/utils'
 import Image from 'next/image'
 import { Badge } from '@/components/ui/badge'
@@ -32,7 +32,7 @@ import { OrderStatus, OrderStatusValues } from '@/constants/type'
 import {
   Popover,
   PopoverContent,
-  PopoverTrigger,
+  PopoverTrigger
 } from '@/components/ui/popover'
 import { OrderTableContext } from '@/app/[locale]/manage/orders/order-table'
 import OrderGuestDetail from '@/app/[locale]/manage/orders/order-guest-detail'
@@ -49,7 +49,7 @@ const orderTableColumns: ColumnDef<OrderItem>[] = [
         String(row.getValue(columnId)),
         String(filterValue)
       )
-    },
+    }
   },
   {
     id: 'guestName',
@@ -89,7 +89,7 @@ const orderTableColumns: ColumnDef<OrderItem>[] = [
         row.original.guest?.name ?? 'Đã bị xóa',
         String(filterValue)
       )
-    },
+    }
   },
   {
     id: 'dishName',
@@ -142,7 +142,7 @@ const orderTableColumns: ColumnDef<OrderItem>[] = [
           </span>
         </div>
       </div>
-    ),
+    )
   },
   {
     accessorKey: 'status',
@@ -156,7 +156,7 @@ const orderTableColumns: ColumnDef<OrderItem>[] = [
           orderId: row.original.id,
           dishId: row.original.dishSnapshot.dishId!,
           status: status,
-          quantity: row.original.quantity,
+          quantity: row.original.quantity
         })
       }
       return (
@@ -179,12 +179,12 @@ const orderTableColumns: ColumnDef<OrderItem>[] = [
           </SelectContent>
         </Select>
       )
-    },
+    }
   },
   {
     id: 'orderHandlerName',
     header: 'Người xử lý',
-    cell: ({ row }) => <div>{row.original.orderHandler?.name ?? ''}</div>,
+    cell: ({ row }) => <div>{row.original.orderHandler?.name ?? ''}</div>
   },
   {
     accessorKey: 'createdAt',
@@ -200,7 +200,7 @@ const orderTableColumns: ColumnDef<OrderItem>[] = [
           )}
         </div>
       </div>
-    ),
+    )
   },
   {
     id: 'actions',
@@ -226,8 +226,8 @@ const orderTableColumns: ColumnDef<OrderItem>[] = [
           </DropdownMenuContent>
         </DropdownMenu>
       )
-    },
-  },
+    }
+  }
 ]
 
 export default orderTableColumns

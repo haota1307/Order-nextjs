@@ -5,13 +5,13 @@ import {
   DialogContent,
   DialogFooter,
   DialogHeader,
-  DialogTitle,
+  DialogTitle
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import {
   UpdateOrderBody,
-  UpdateOrderBodyType,
+  UpdateOrderBodyType
 } from '@/schemaValidations/order.schema'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
@@ -21,7 +21,7 @@ import {
   FormField,
   FormItem,
   FormLabel,
-  FormMessage,
+  FormMessage
 } from '@/components/ui/form'
 import { getVietnameseOrderStatus, handleErrorApi } from '@/lib/utils'
 import { OrderStatus, OrderStatusValues } from '@/constants/type'
@@ -30,7 +30,7 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
+  SelectValue
 } from '@/components/ui/select'
 import { DishesDialog } from '@/app/[locale]/manage/orders/dishes-dialog'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
@@ -38,14 +38,14 @@ import { useEffect, useState } from 'react'
 import { DishListResType } from '@/schemaValidations/dish.schema'
 import {
   useGetOrderDetailQuery,
-  useUpdateOrderMutation,
+  useUpdateOrderMutation
 } from '@/queries/useOrder'
 import { toast } from '@/components/ui/use-toast'
 
 export default function EditOrder({
   id,
   setId,
-  onSubmitSuccess,
+  onSubmitSuccess
 }: {
   id?: number | undefined
   setId: (value: number | undefined) => void
@@ -54,11 +54,10 @@ export default function EditOrder({
   const [selectedDish, setSelectedDish] = useState<
     DishListResType['data'][0] | null
   >(null)
-
   const updateOrderMutation = useUpdateOrderMutation()
   const { data } = useGetOrderDetailQuery({
     id: id as number,
-    enabled: Boolean(id),
+    enabled: Boolean(id)
   })
 
   const form = useForm<UpdateOrderBodyType>({
@@ -66,8 +65,8 @@ export default function EditOrder({
     defaultValues: {
       status: OrderStatus.Pending,
       dishId: 0,
-      quantity: 1,
-    },
+      quantity: 1
+    }
   })
 
   useEffect(() => {
@@ -75,12 +74,12 @@ export default function EditOrder({
       const {
         status,
         dishSnapshot: { dishId },
-        quantity,
+        quantity
       } = data.payload.data
       form.reset({
         status,
         dishId: dishId ?? 0,
-        quantity,
+        quantity
       })
       setSelectedDish(data.payload.data.dishSnapshot)
     }
@@ -91,18 +90,18 @@ export default function EditOrder({
     try {
       let body: UpdateOrderBodyType & { orderId: number } = {
         orderId: id as number,
-        ...values,
+        ...values
       }
       const result = await updateOrderMutation.mutateAsync(body)
       toast({
-        description: result.payload.message,
+        description: result.payload.message
       })
       reset()
       onSubmitSuccess && onSubmitSuccess()
     } catch (error) {
       handleErrorApi({
         error,
-        setError: form.setError,
+        setError: form.setError
       })
     }
   }
